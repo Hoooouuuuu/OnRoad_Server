@@ -1,21 +1,14 @@
-# 1단계: 빌드용 이미지
-FROM gradle:8.1.1-jdk17 AS builder
+# 1단계: 빌드 스테이지
+FROM gradle:8.5.0-jdk17 AS builder
 WORKDIR /app
-
-# Gradle 캐시 최적화
-COPY build.gradle ./
-# settings.gradle 없으면 이 줄은 제거하거나 생성
-# COPY settings.gradle ./
+COPY build.gradle settings.gradle ./
 COPY gradle ./gradle
-RUN gradle clean build -x test || true
-
-# 전체 소스 복사 및 빌드
+RUN ./gradlew clean build -x test || true  # 테스트 실패는 무시 (선택사항)
 COPY . .
-RUN gradle build -x test
+RUN ./gradlew build -x test
 
-# 2단계: 런타임 이미지
+# 2단계: 실행 스테이지
 FROM openjdk:17
 WORKDIR /app
 COPY --from=builder /app/build/libs/*.jar app.jar
-
 ENTRYPOINT ["java", "-jar", "app.jar"]
