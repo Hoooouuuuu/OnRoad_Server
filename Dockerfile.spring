@@ -1,4 +1,19 @@
+# 1단계: 빌드 전용 환경
+FROM gradle:8.1.1-jdk17 AS builder
+WORKDIR /app
+
+# Gradle 캐시 최적화 (선택)
+COPY build.gradle settings.gradle ./
+COPY gradle ./gradle
+RUN gradle clean build -x test || true
+
+# 전체 프로젝트 복사 및 빌드
+COPY . .
+RUN gradle build -x test
+
+# 2단계: 실행 전용 환경
 FROM openjdk:17
 WORKDIR /app
-COPY build/libs/*.jar app.jar
+COPY --from=builder /app/build/libs/*.jar app.jar
+
 ENTRYPOINT ["java", "-jar", "app.jar"]
