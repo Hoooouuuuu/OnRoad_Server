@@ -22,7 +22,7 @@ services:
     depends_on:
       - mysql
     environment:
-      DB_URL: jdbc:mysql://mysql:3306/my_db?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+      DB_URL: ${DB_URL}
       DB_USERNAME: ${DB_USERNAME}
       DB_PASSWORD: ${DB_PASSWORD}
     ports:
