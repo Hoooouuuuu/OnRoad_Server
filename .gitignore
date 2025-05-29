@@ -13,6 +13,12 @@
 build/
 out/
 
+# Gradle Wrapper는 Git에 반드시 포함
+!gradlew
+!gradlew.bat
+!gradle/wrapper/gradle-wrapper.jar
+!gradle/wrapper/gradle-wrapper.properties
+
 # -----------------------
 # ⚙️ IDE 설정 (IntelliJ, VSCode 등)
 # -----------------------

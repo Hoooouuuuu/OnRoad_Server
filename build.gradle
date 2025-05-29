@@ -44,3 +44,9 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
+// ✅ wrapper 태스크 재정의 (에러 없음)
+tasks.named('wrapper') {
+    gradleVersion = '8.5'
+    distributionType = Wrapper.DistributionType.ALL
+}
