@@ -5,50 +5,29 @@ services:
     image: mysql:8.0
     container_name: mysql
     restart: always
+    environment:
+      MYSQL_DATABASE: my_db
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      TZ: Asia/Seoul
     ports:
       - "3306:3306"
     volumes:
-      - mysql-data:/var/lib/mysql
-    env_file:
-      - .env  # 👈 민감 정보는 이 파일에서만 관리
-    environment:
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
-      MYSQL_DATABASE: my_db
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p${DB_PASSWORD}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - backend
+      - mysql_data:/var/lib/mysql
 
-  spring:
+  springboot:
     build:
       context: .
       dockerfile: Dockerfile.spring
-    container_name: spring-app
+    container_name: springboot-app
     depends_on:
-      mysql:
-        condition: service_healthy  # ✅ DB 연결 준비될 때까지 대기
+      - mysql
+    environment:
+      DB_URL: jdbc:mysql://mysql:3306/my_db?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
     ports:
       - "8080:8080"
-    env_file:
-      - .env
-    networks:
-      - backend
-
-  flask:
-    build: ./flask
-    container_name: flask-app
-    ports:
-      - "5001:5001"
-    env_file:
-      - .env
-    networks:
-      - backend
+    # wait-for-it 또는 healthcheck 사용 권장
 
 volumes:
-  mysql-data:
-
-networks:
-  backend:
+  mysql_data:
