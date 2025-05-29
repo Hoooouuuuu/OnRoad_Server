@@ -1,0 +1,118 @@
+/* ✅ 기본 컨테이너 스타일 */
+.container {
+  width: 100%;
+  max-width: 900px;
+  margin: 50px auto;
+  background-color: white;
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* ✅ 폼 그룹 */
+.form-group {
+  margin-bottom: 20px;
+}
+
+label {
+  font-size: 1rem;
+  color: var(--navy);
+  margin-bottom: 5px;
+  display: block;
+}
+
+/* ✅ 입력 필드 */
+input[type="text"],
+textarea {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+}
+
+textarea {
+  resize: none;
+}
+
+/* ✅ 버튼 스타일 */
+button {
+  background-color: var(--dark-green);
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: var(--medium-blue);
+}
+
+button[type="reset"] {
+  background-color: #f0f0f0;
+  color: var(--navy);
+}
+
+button[type="reset"]:hover {
+  background-color: #e0e0e0;
+}
+
+.button-group {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+/* ✅ 파일 업로드 필드 및 버튼 아이콘 조정 */
+input[type="file"].form-control {
+  cursor: pointer;
+}
+
+#file-list .d-flex {
+  border: 1px solid #ddd;
+  padding: 8px;
+  border-radius: 5px;
+}
+
+#file-list .btn-danger {
+  width: 30px;
+  height: 30px;
+  background-color: #f44336;
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+#file-list .btn-danger:hover {
+  background-color: #d32f2f;
+}
+
+/* 🌚 다크모드 전용 스타일 추가 */
+body.dark-mode .container {
+  background-color: var(--card-bg);
+}
+
+body.dark-mode .button-group button {
+  background-color: var(--dark-green);
+  color: white;
+}
+
+body.dark-mode .button-group button:hover {
+  background-color: #0f926d;
+  color: white;
+}
+
+/* 🌚 다크모드 - 삭제하기 버튼 */
+body.dark-mode button[type="reset"] {
+  background-color: #6D8299; 
+  color: white;
+}
+
+body.dark-mode button[type="reset"]:hover {
+  background-color: #4C5D73; 
+  color: white;
+}

@@ -1,0 +1,182 @@
+.login-container {
+    width: 100%;
+    max-width: 400px;
+    margin: 50px auto;
+    background-color: white;
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+h1 {
+    text-align: center;
+    color: var(--medium-blue);
+    margin: 20px;
+}
+
+/* 폼 요소 간 간격 */
+.login-container .form-label {
+    font-weight: 600;
+}
+
+.login-container .form-control {
+    padding: 10px 15px;
+    font-size: 1rem;
+}
+
+/* 메시지 스타일 */
+.login-container .error {
+    margin-top: 10px;
+    color: #dc3545;
+    font-weight: 500;
+}
+
+.login-container .success {
+    margin-top: 10px;
+    color: #28a745;
+    font-weight: 500;
+}
+
+.login-container .alert-warning {
+    margin-top: 10px;
+    color: #856404;
+    background-color: #fff3cd;
+    border-radius: 4px;
+    padding: 8px 12px;
+}
+
+/* 로그인 버튼 */
+.btn-login {
+    background-color: var(--blue-gray);
+    color: white;
+    border: 1px solid var(--blue-gray);
+    transition: all 0.3s;
+}
+
+.btn-login:hover {
+    background-color: var(--blue-gray-light);
+    color: white;
+    border: 1px solid var(--blue-gray-light);
+}
+
+/* 아이디 찾기 버튼 */
+.btn-find-id {
+    background-color: #eab849;
+    color: white;
+    border: 1px solid #eab849;
+    transition: all 0.3s;
+}
+
+.btn-find-id:hover {
+    background-color: #f5cc66;
+    color: white;
+    border: 1px solid #f5cc66;
+}
+
+/* 비밀번호 찾기 버튼 */
+.btn-find-password {
+    background-color: gray;
+    color: white;
+    border: 1px solid gray;
+    transition: all 0.3s;
+}
+
+.btn-find-password:hover {
+    background-color: #a6a6a6;
+    color: white;
+    border: 1px solid #a6a6a6;
+}
+
+/* 소셜 로그인 구역 */
+.social-section {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.social-section .signup-label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.social-buttons a {
+    display: inline-block;
+    margin: 0 8px;
+}
+
+.social-buttons img {
+    height: 40px;
+    transition: transform 0.2s ease;
+}
+
+.social-buttons img:hover {
+    transform: scale(1.05);
+}
+
+.modal-content {
+    padding: 2rem 1.5rem;
+    /* 모달 전체 패딩 */
+    border-radius: 1rem;
+    /* 더 부드러운 둥글기 */
+}
+
+/* 모달 내부 form 여백 정리 */
+.modal-body form>div {
+    margin-bottom: 1.5rem;
+}
+
+/* 모달 내부 버튼 */
+.modal-body button {
+    margin-top: 0.5rem;
+    padding: 0.75rem;
+    font-size: 1.1rem;
+    border-radius: 0.75rem;
+}
+
+/* 🌚 다크모드 전용 스타일 추가 */
+body.dark-mode .login-container,
+body.dark-mode .modal-content {
+    background-color: var(--card-bg);
+}
+
+/* 로그인 폼 전용 다크모드 스타일 보완 */
+body.dark-mode .login-container label,
+body.dark-mode .signup-label {
+    color: var(--text-color) !important;
+}
+
+/* 다크모드용 로그인 버튼 */
+body.dark-mode .btn-login {
+    background-color: var(--blue-gray);
+    color: var(--text-color);
+    border: none;
+    transition: all 0.3s;
+}
+
+body.dark-mode .btn-login:hover {
+    background-color: #3a4d61;
+    color: var(--text-color);
+}
+
+/* 다크모드용 아이디 찾기 버튼 */
+body.dark-mode .btn-find-id:hover {
+    background-color: #dd9c2c;
+    color: white;
+    border: 1px solid #dd9c2c;
+    transition: all 0.3s;
+}
+
+/* 다크모드용 비밀번호 찾기 버튼 */
+body.dark-mode .btn-find-password:hover {
+    background-color: #6c757d;
+    color: white;
+    border: 1px solid #6c757d;
+    transition: all 0.3s;
+}
+
+/* 다크모드용 모달 X 버튼 (닫기 버튼) 스타일 */
+body.dark-mode .btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%);
+    opacity: 0.9;
+}
