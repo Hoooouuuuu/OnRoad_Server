@@ -1,0 +1,204 @@
+.container {
+  width: 100%;
+  max-width: 900px;
+  margin: 50px auto;
+  background-color: white;
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.section-title {
+  color: var(--dark-green);
+  font-size: 1.3rem;
+  margin: 30px 0 15px;
+}
+
+.notice-card,
+.post-card {
+  padding: 15px 20px;
+  margin-bottom: 10px;
+  border-radius: 10px;
+}
+
+.notice-card {
+  background-color: #e6f4f9;  /* 연한 블루 그린 */
+  border: 1px solid #88a4c9;  /* 네브바 계열의 블루 테두리 */
+}
+
+.post-card {
+  background-color: #f9fafb; 
+  border: 1px solid #d0dbe5; 
+}
+
+.title {
+  font-weight: bold;
+  text-decoration: none;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.notice-card .title {
+  color: #2a4e77;
+}
+
+.notice-card .title:hover {
+  color: #eab308;
+}
+
+.post-card .title {
+  color: #333;
+}
+
+.post-card .title:hover {
+  color: #1e90ff;
+}
+
+.meta {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.write-btn {
+  background-color: var(--dark-green);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 30px;
+  text-decoration: none;
+}
+
+.write-btn:hover {
+  background-color: var(--medium-blue);
+  color: white;
+}
+
+.no-post {
+  text-align: center;
+  color: #333;
+  margin-top: 40px;
+}
+
+.pagination {
+  margin-top: 40px;
+  text-align: center;
+}
+
+.page-link {
+  padding: 6px 12px;
+  margin: 0 5px;
+  border-radius: 20px;
+  color: var(--navy);
+  border: 1px solid var(--navy);
+}
+
+.page-link.active {
+  background-color: var(--navy);
+  color: white;
+}
+
+.pagination .disabled {
+  pointer-events: none;
+  color: #999  !important;
+  background-color: #f5f5f5  !important;
+  border-color: #ccc  !important;
+}
+
+.pagination .no-hover:hover {
+  cursor: default;
+  background-color: transparent !important;
+  color: #aaa !important;
+}
+
+.board-wrapper {
+  min-height: calc(100vh - 80px);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* 게시글 없을 땐 높이 없이 자연스럽게 콘텐츠만 표시 */
+.board-wrapper-empty {
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+}
+
+/* 🌚 다크모드 전용 스타일 추가 */
+body.dark-mode .container {
+  background-color: #1E1E2F;  
+}
+
+body.dark-mode .no-post {
+  color: white;
+}
+
+/* 🌚 공지사항 카드 */
+body.dark-mode .notice-card {
+  background-color: #2A2E3A;  
+  border: 1px solid #da8627;
+}
+
+body.dark-mode .notice-card .title {
+  color: #FACC15;  
+}
+
+body.dark-mode .notice-card .title:hover {
+  color: #FBBF24; 
+}
+
+/* 🌚 일반 게시글 카드 */
+body.dark-mode .post-card {
+  background-color: #2F3542;  
+  border: 1px solid #4C566A;  
+}
+
+body.dark-mode .post-card .title {
+  color: #D1D5DB; 
+}
+
+body.dark-mode .post-card .title:hover {
+  color: #7FDBFF;  
+}
+
+/* 🌚 메타 정보 */
+body.dark-mode .meta {
+  color: #A0AEC0;  
+}
+
+/* 🌚 페이징 버튼 */
+body.dark-mode .page-link {
+  color: #D8DEE9;
+  border: 1px solid #4C566A;
+  background-color: transparent;
+}
+
+body.dark-mode .page-link:hover {
+  background-color: #3B4252;
+  color: #E5E9F0;
+}
+
+body.dark-mode .page-link.active {
+  background-color: #81A1C1;  
+  color: white;
+  border-color: #81A1C1;
+}
+
+body.dark-mode .pagination .disabled {
+  pointer-events: none;
+  color: #666 !important;                   
+  background-color: #2A2E3A !important;      
+  border-color: #4C566A !important;         
+}
+
+/* 다크모드에서 비활성 버튼 hover 시에도 변화 없게 */
+body.dark-mode .pagination .no-hover:hover {
+  cursor: default;
+  background-color: #2A2E3A !important;
+  color: #666 !important;
+}
+
+/* 🌚 다크모드 글쓰기 버튼 */
+body.dark-mode .write-btn:hover {
+  background-color: #059669; 
+  color: white;
+}

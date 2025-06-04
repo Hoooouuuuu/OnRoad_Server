@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+  <meta charset="UTF-8">
+  <title>교통 정보 지도</title>
+
+  <!-- ✅ Favicon -->
+  <link rel="icon" href="/image/main/icon.png" type="image/png">
+
+  <!-- ✅ Bootstrap & 외부 공통 리소스 -->
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.min.css"
+    rel="stylesheet">
+
+  <!-- ✅ jQuery (항상 Bootstrap JS보다 먼저!) -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+  <!-- ✅ Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- ✅ 프로젝트 전용 CSS & JS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" th:href="@{/css/home.css}">
+  <link rel="stylesheet" th:href="@{/css/traffic.css}">
+  <script th:src="@{/js/home.js}" defer></script>
+  <script type="text/javascript" src="https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=ge5761tj1f"></script>
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+
+  <script th:inline="javascript">
+    /*<![CDATA[*/
+    const ITS_API_KEY = /*[[${itsApiKey}]]*/ '';
+    window.ITS_API_KEY = ITS_API_KEY;
+    /*]]>*/
+  </script>
+
+</head>
+
+<body class="d-flex flex-column min-vh-100">
+  <!-- ✅ 네브바 -->
+  <nav class="navbar navbar-expand-lg px-4 position-relative">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mobileMenu"
+      aria-controls="mobileMenu" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <!-- 웹(데스크톱)용 로고 -->
+    <a class="navbar-brand d-none d-lg-block position-absolute top-0 mt-2 ms-3" style="z-index: 1020;" th:href="@{/}">
+      <!-- 라이트 모드 로고 -->
+      <img src="/image/main/logo-light.png" alt="Logo Light" class="logo-light" style="height: 40px;">
+      <!-- 다크 모드 로고 -->
+      <img src="/image/main/logo-dark.png" alt="Logo Dark" class="logo-dark" style="height: 40px;">
+    </a>
+
+    <div class="position-absolute end-0 top-0 mt-2 me-3 d-flex align-items-center gap-2">
+      <th:block sec:authorize="isAuthenticated()">
+        <div class="dropdown">
+          <button class="btn login-btn dropdown-toggle rounded-pill px-3 py-2" type="button" id="userDropdown"
+            data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-person-circle me-1"></i> 내정보
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end my-2 auth-dropdown" aria-labelledby="userDropdown">
+            <li><a class="dropdown-item" th:href="@{/member/mypage}">마이페이지</a></li>
+            <li>
+              <form th:action="@{/logout}" method="post">
+                <button type="submit" class="dropdown-item">로그아웃</button>
+              </form>
+            </li>
+          </ul>
+        </div>
+      </th:block>
+      <th:block sec:authorize="isAnonymous()">
+        <a th:href="@{/auth/login}" class="btn login-btn rounded-pill px-3 py-2">
+          <i class="bi bi-person-circle me-1"></i> 로그인
+        </a>
+      </th:block>
+      <button id="toggle-mode" class="btn btn-outline-light">🌙</button>
+    </div>
+
+    <!-- 모바일 메뉴 안에 있는 로고 -->
+    <div class="collapse navbar-collapse justify-content-center" id="mobileMenu">
+      <div class="d-lg-none text-center w-100">
+        <a class="navbar-brand d-lg-none mt-2 d-inline-block" th:href="@{/}">
+          <!-- 라이트 모드 로고 -->
+          <img src="/image/main/logo-light.png" alt="Logo Light" class="logo-light" style="height: 40px;">
+          <!-- 다크 모드 로고 -->
+          <img src="/image/main/logo-dark.png" alt="Logo Dark" class="logo-dark" style="height: 40px;">
+        </a>
+        <hr />
+      </div>
+
+      <ul class="navbar-nav text-center">
+        <li class="nav-item position-relative">
+          <a class="nav-link d-flex align-items-center justify-content-center" href="#" id="mobileBoardDropdown"
+            data-bs-toggle="collapse" data-bs-target="#boardDropdownMenu" aria-expanded="false"
+            aria-controls="boardDropdownMenu">
+            게시판
+            <i class="bi bi-chevron-down ms-2 arrow-icon"></i>
+          </a>
+          </a>
+          <div class="collapse" id="boardDropdownMenu">
+            <ul class="list-unstyled ps-0">
+              <li><a class="dropdown-item text-center" th:href="@{/board/list(categoryId=2)}">자유게시판</a></li>
+              <li><a class="dropdown-item text-center" th:href="@{/board/list(categoryId=3)}">민원게시판</a></li>
+            </ul>
+          </div>
+        </li>
+        <li class="nav-item"><a class="nav-link" th:href="@{/chart-view}">통계 & 자료</a></li>
+        <li class="nav-item"><a class="nav-link" th:href="@{/pages/map/traffic}">지도</a></li>
+        <li class="nav-item"><a class="nav-link" th:href="@{/news-view}">뉴스</a></li>
+        <li class="nav-item"><a class="nav-link" href="#weather">날씨</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- ✅ 본문 -->
+  <div class="main-content d-flex">
+    <!-- 사이드바 버튼 -->
+    <aside class="sidebar">
+      <button id="sidebarCctvBtn" title="CCTV"><i class="fas fa-video"></i></button>
+      <button id="sidebarEventBtn" title="도로 이벤트"><i
+          class="fas fa-triangle-exclamation popup-box event-popup"></i></button>
+      <button id="sidebarBusBtn" title="버스 위치"><i class="fas fa-bus"></i></button>
+      <button id="sidebarRouteBtn" title="길찾기"><i class="fas fa-route"></i></button>
+      <button id="sidebarBikeBtn" title="따릉이 대여소"><i class="fas fa-bicycle popup-box bike-popup"></i></button>
+      <button id="sidebarSubwayBtn" title="지하철"><i class="fas fa-train-subway"></i></button>
+      <button id="sidebarParkingBtn" title="주차장"><i class="fas fa-p"></i></button>
+    </aside>
+
+    <!-- 지도 -->
+    <div id="map" style="width: 100%; height: 100vh;"></div>
+
+    <!-- 지도 타입 + 교통정보 토글 그룹 -->
+    <div id="mapTypeControl" class="btn-group btn-group-sm position-absolute top-0 end-0 m-3 shadow" role="group">
+      <button class="btn btn-outline-light active" data-type="NORMAL"><i class="fas fa-map"></i> 일반</button>
+      <button class="btn btn-outline-light" data-type="SATELLITE"><i class="fas fa-satellite"></i> 위성</button>
+      <button class="btn btn-outline-light" data-type="HYBRID"><i class="fas fa-layer-group"></i> 지형</button>
+      <button id="toggleTrafficLayer" class="btn btn-outline-light" data-type="TRAFFIC"><i class="fas fa-road"></i>
+        교통정보</button>
+    </div>
+
+    <!-- 커스텀 줌 컨트롤 -->
+    <div id="customZoomScroll"
+      class="position-absolute top-50 translate-middle-y end-0 me-3 z-1000 d-flex flex-column align-items-center">
+      <button class="btn btn-light btn-sm mb-1" id="zoomInBtn"><i class="fas fa-plus"></i></button>
+
+      <!-- 세로 슬라이더 -->
+      <input type="range" id="zoomSlider" min="6" max="20" value="14" step="1">
+
+      <button class="btn btn-light btn-sm mt-1" id="zoomOutBtn"><i class="fas fa-minus"></i></button>
+    </div>
+
+
+    <!-- CCTV 영상창 -->
+    <div id="videoContainer" style="display: none;">
+      <div class="video-header">
+        <span id="videoTitle" class="video-title"></span>
+        <button id="closeVideoBtn" class="video-close-btn">X</button>
+      </div>
+      <video id="cctvVideo" controls autoplay muted></video>
+      <div class="video-footer">
+        <button id="fullscreenBtn" class="video-bottom-btn">전체화면</button>
+        <button id="openNewTabBtn" class="video-bottom-btn">새창</button>
+      </div>
+    </div>
+
+    <!-- CCTV 검색 패널 -->
+    <div id="cctvFilterPanel" class="cctv-panel" style="display: none;">
+      <!-- ✅ 상단 탭 버튼 -->
+      <div class="cctv-tab-bar">
+        <button id="tabHighway" class="btn btn-outline-primary btn-sm w-100 mx-1">고속도로</button>
+        <button id="tabNormalroad" class="btn btn-outline-primary btn-sm w-100 mx-1">국도</button>
+      </div>
+      <!-- ✅ 도로 리스트 (기본 보임) -->
+      <ul id="roadList" class="list-group cctv-list scrollable-list"></ul>
+
+      <!-- ✅ 지도 타입 버튼 (하단 고정) -->
+      <div id="mapTypeButtons" class="map-type-buttons">
+        <button class="map-type-btn" data-type="NORMAL">일반지도</button>
+        <button class="map-type-btn" data-type="SATELLITE">위성지도</button>
+        <button class="map-type-btn" data-type="HYBRID">항공지도</button>
+      </div>
+    </div>
+
+    <!-- 🚌 정류장 마커 + 버스 추적 통합 패널 -->
+    <div id="busFilterPanel" class="bus-panel" style="display: none;">
+
+      <!-- 🔹 고정 헤더 -->
+      <div class="flex-shrink-0">
+        <div class="bus-header py-2 px-3 d-flex justify-content-between align-items-center">
+          <h5 class="mb-0"><i class="bi bi-signpost-2-fill me-1"></i> 버스 정보</h5>
+          <button id="resetMapBtn" class="btn btn-sm btn-light" onclick="resetBusStopPanel()" title="목록 초기화">
+            <i class="bi bi-arrow-clockwise"></i>
+          </button>
+        </div>
+
+        <div class="p-3 d-flex flex-column gap-3">
+          <!-- 지역 선택 -->
+          <div>
+            <select id="regionSelector" class="form-select form-select-sm">
+              <option value="" selected disabled hidden>시/도 선택</option>
+            </select>
+          </div>
+
+          <!-- 버스 번호 검색 -->
+          <div class="input-group mb-3">
+            <input type="text" id="routeInput" class="form-control form-control-sm" placeholder="버스 번호 입력 (예: 100)">
+            <button class="btn btn-sm btn-outline-primary" onclick="searchBusRoute()" title="검색">
+              <i class="bi bi-search"></i>
+            </button>
+          </div>
+
+          <div>
+            <button class="btn-outline-primary btn btn-sm w-100" onclick="findNearbyStops()">📍 내 주변 정류소</button>
+          </div>
+
+          <!-- 도착 정보 제목만 고정 -->
+          <div id="arrivalPanelBox">
+            <h6 class="fw-bold border-bottom pb-2">🚌 도착 정보</h6>
+          </div>
+        </div>
+      </div>
+
+      <!-- 🔹 스크롤되는 영역: 도착 정보 목록 -->
+      <div class="flex-grow-1 overflow-auto px-3 pb-3" id="arrivalPanelBody" style="font-size: 0.9rem;">
+        <div class="text-muted">원하시는 정류장을 선택하세요</div>
+      </div>
+
+      <!-- 🔹 푸터 고정 -->
+      <div class="panel-footer text-center flex-shrink-0 py-2 px-3 border-top bg-light">
+        <small class="text-muted">※ 시/도를 선택하거나 버스 번호로 검색하세요.</small>
+      </div>
+    </div>
+
+    <div id="busRouteFloatingPanel" class="card shadow-sm position-absolute"
+      style="top: 60px; right: 20px; width: 320px; z-index: 1000; display: none;">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <strong id="busRouteFloatingTitle">123번 버스</strong>
+        <button class="btn btn-sm btn-outline-secondary" onclick="closeRouteFloatingPanel()">✕</button>
+      </div>
+      <div class="card-body" id="busRouteFloatingBody">
+        <div>🚏 정류장 수: <span id="stopCount"></span></div>
+        <div>🕒 배차: <span id="intervalTime"></span></div>
+        <div>🚀 경로가 지도에 표시되었습니다.</div>
+      </div>
+    </div>
+
+    <!-- 🧭 길찾기 사이드바 패널 -->
+    <div id="routeFilterPanel" class="sidebar-panel" style="display: none;">
+
+      <!-- 🔹 고정 헤더 -->
+      <div class="flex-shrink-0">
+        <div class="route-header py-2 px-3 d-flex justify-content-between align-items-center">
+          <h5 class="mb-0"><i class="bi bi-geo-alt-fill me-1"></i> 길찾기</h5>
+          <button class="btn btn-sm btn-light" onclick="resetRoutePanel()" title="내 위치로 초기화">
+            <i class="bi bi-arrow-clockwise"></i>
+          </button>
+        </div>
+
+        <!-- 🔹 입력 섹션 -->
+        <div class="p-3 d-flex flex-column gap-3">
+
+          <!-- 🔍 장소 검색 -->
+          <div class="input-group">
+            <input id="placeSearchInput" class="form-control form-control-sm" placeholder="🔍 원하는 장소를 검색하세요">
+          </div>
+          <ul id="placeSearchResults" class="list-group" style="max-height: 150px; overflow-y: auto;"></ul>
+
+          <!-- 📍 반경 카테고리 -->
+          <div>
+            <select id="categorySelect" class="form-select form-select-sm">
+              <option value="MT1">🛒 대형마트</option>
+              <option value="CS2">🏪 편의점</option>
+              <option value="PS3">🎒 어린이집/유치원</option>
+              <option value="SC4">🏫 학교</option>
+              <option value="AC5">📚 학원</option>
+              <option value="PK6">🅿️ 주차장</option>
+              <option value="OL7">⛽ 주유소</option>
+              <option value="SW8">🚇 지하철역</option>
+              <option value="BK9">🏦 은행</option>
+              <option value="CT1">🎭 문화시설</option>
+              <option value="AG2">🏠 중개업소</option>
+              <option value="PO3">🏛 공공기관</option>
+              <option value="AT4">🗺️ 관광명소</option>
+              <option value="AD5">🏨 숙박</option>
+              <option value="FD6" selected>🍽 음식점</option>
+              <option value="CE7">☕ 카페</option>
+              <option value="HP8">🏥 병원</option>
+              <option value="PM9">💊 약국</option>
+            </select>
+          </div>
+
+          <!-- 📍 지도 중심 검색 -->
+          <div>
+            <button class="btn-outline-primary btn btn-sm w-100" onclick="searchFromMap()">📍 지도 중심 검색</button>
+          </div>
+
+          <!-- 🧭 도착 정보 제목 -->
+          <div id="arrivalPanelBox">
+            <h6 id="resultTitle" class="fw-bold border-bottom pb-2">📌 결과 정보</h6>
+          </div>
+        </div>
+      </div>
+
+      <!-- 🔹 스크롤 영역 -->
+      <div class="flex-grow-1 overflow-auto px-3 pb-3" id="nearbyPlaceList" style="font-size: 0.9rem;">
+        <div class="text-muted">🔎 장소를 검색하거나 내 위치를 기준으로 검색해보세요.</div>
+      </div>
+
+      <!-- 🔹 고정 푸터 -->
+      <div class="panel-footer text-center flex-shrink-0 py-2 px-3 border-top bg-light">
+        <small class="text-muted">※ 검색어나 범주를 선택하고 결과를 확인하세요.</small>
+      </div>
+    </div>
+
+    <!-- ✅ 교통속도 범례 박스 (기본은 숨김) -->
+    <div id="trafficLegendBox" class="traffic-legend-box">
+      <div><span class="legend-box" style="background-color: #28a745;"></span> 원활 (41km/h 이상)</div>
+      <div><span class="legend-box" style="background-color: #ffc107;"></span> 보통 (21~40km/h)</div>
+      <div><span class="legend-box" style="background-color: #dc3545;"></span> 정체 (0~20km/h)</div>
+    </div>
+
+    <!-- ✅ 오른쪽 전국 이벤트 리스트 패널 -->
+    <div id="eventListPanel" style="display: none;">
+      <h6 class="fw-bold mb-3">📍 도로 이벤트 목록</h6>
+      <div id="eventListContent" class="d-flex flex-column gap-2"></div>
+    </div>
+
+    <!-- 상세 내용 패널 -->
+    <div id="eventInfoBox" class="event-info-box" style="display: none;">
+    </div>
+
+    <!-- 로딩 스피너 -->
+    <div id="loadingSpinner" style="display: none;">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+
+    <!-- 🅿️ 주차장 범례 박스 (기본 숨김) -->
+    <div id="parkingLegendBox" class="position-absolute bottom-0 end-0 m-3 p-3 bg-white shadow-sm rounded small"
+      style="display: none; z-index: 1000;">
+      <strong class="d-block mb-2 text-center"><i class="fa-solid fa-square-parking"></i> 주차장 상태</strong>
+      <div class="d-flex align-items-center mb-1">
+        <img src="/image/parking/green-icon.png" width="25" class="me-2" />
+        <span>원활 (30% 이상)</span>
+      </div>
+      <div class="d-flex align-items-center mb-1">
+        <img src="/image/parking/yellow-icon.png" width="25" class="me-2" />
+        <span>혼잡 (0~30%)</span>
+      </div>
+      <div class="d-flex align-items-center mb-1">
+        <img src="/image/parking/red-icon.png" width="25" class="me-2" />
+        <span>만차</span>
+      </div>
+      <div class="d-flex align-items-center">
+        <img src="/image/parking/gray-icon.png" width="25" class="me-2" />
+        <span>검색 제외</span>
+      </div>
+    </div>
+
+
+    <!--따릉이 상세정보 왼쪽 패널 -->
+    <div id="stationDetailPanel" class="info-panel" style="display: none;">
+      <h4 id="detailStationName">🚲 대여소 이름</h4>
+      <p id="detailStationInfo">여기에 상세 설명이 들어갑니다.</p>
+      <p id="detailStationDistance">거리: 계산 중...</p>
+
+
+      <!-- 따릉이 안내 / 취소 버튼 -->
+      <div class="btn-group mt-3 w-100">
+        <button class="btn btn-primary w-100" onclick="goToNaverRoute()">🧭 안내</button>
+        <button class="btn btn-secondary w-100" onclick="cancelBikeRoute()">❌ 취소</button>
+      </div>
+
+      <!-- 따릉이 추천 / 위치 이동 버튼 -->
+      <div class="btn-group mt-3 w-100">
+        <button id="recommendBtn" class="btn btn-outline-success w-100">🚲 추천 대여소 보기</button>
+        <button id="moveToMyLocation" class="btn btn-outline-primary w-100">📍 내 위치로 이동</button>
+      </div>
+
+      <!-- 따릉이 ! -->
+      <div style="margin-top: 12px; text-align: right;">
+        <button id="closeDetailPanel" class="close-btn">닫기</button>
+      </div>
+    </div>
+
+    <!-- 🚇 지하철 패널 내부 -->
+    <div id="subwayFilterPanel" style="display: none; flex-direction: column;">
+      <h5 class="mt-3 px-3">🚇 지하철 정보</h5>
+
+      <!-- 호선 체크 필터 -->
+      <div class="px-3 mb-2">
+        <label class="form-label">표시할 호선 선택</label>
+        <div id="lineCheckboxContainer" class="d-flex flex-wrap gap-2"></div>
+      </div>
+
+      <!-- 출발/도착역 입력 -->
+      <div class="px-3">
+        <div class="input-group mb-2">
+          <input id="startStationInput" class="form-control" placeholder="🚩 탑승역 (예: 서울역)" />
+        </div>
+        <div class="input-group mb-2">
+          <input id="endStationInput" class="form-control" placeholder="🏁 하차역 (예: 종각)" />
+        </div>
+
+        <!-- 경로 검색 버튼 -->
+        <button class="btn btn-success w-100 mb-2" onclick="findSubwayRoute()">🔍 경로 검색</button>
+      </div>
+
+      <!-- ✅ 경로 결과 출력 -->
+      <div id="routeResultBox" class="px-3 mb-3" style="font-size: 14px;"></div>
+    </div>
+
+    <!-- 🅿️ 주차장 검색 패널 -->
+    <div id="parkingFilterPanel" style="display: none; flex-direction: column;">
+      <!-- ✅ 고정 영역 전체 -->
+      <div class="parking-header-sticky" style="position: sticky; top: 0; z-index: 10;">
+        <!-- 헤더 -->
+        <div class="parking-header py-2 px-3 d-flex justify-content-between align-items-center">
+          <h5 class="mb-0"><i class="bi bi-car-front-fill me-1"></i> 서울시 주차장</h5>
+          <button class="btn btn-sm btn-light" onclick="resetParkingPanel()" title="목록 초기화">
+            <i class="bi bi-arrow-clockwise"></i>
+          </button>
+        </div>
+
+        <!-- 필터 & 검색 -->
+        <div class="p-3 border-bottom">
+          <div class="row g-2 mb-2">
+            <div class="col">
+              <select id="parkingGuSelect" class="form-select form-select-sm" onchange="filterParkingByRegion()">
+                <option value="">전체 구</option>
+              </select>
+            </div>
+            <div class="col">
+              <select id="parkingDongSelect" class="form-select form-select-sm" onchange="filterParkingByRegion()">
+                <option value="">전체 동</option>
+              </select>
+            </div>
+          </div>
+          <div class="row g-2 mb-2">
+            <div class="col">
+              <select id="payTypeSelect" class="form-select form-select-sm" onchange="applyAdvancedParkingFilters()">
+                <option value="">전체 요금</option>
+                <option value="유료">유료</option>
+                <option value="무료">무료</option>
+              </select>
+            </div>
+            <div class="col">
+              <select id="parkingTypeSelect" class="form-select form-select-sm"
+                onchange="applyAdvancedParkingFilters()">
+                <option value="">전체 종류</option>
+                <option value="노상 주차장">노상</option>
+                <option value="노외 주차장">노외</option>
+              </select>
+            </div>
+          </div>
+          <div class="input-group mb-3">
+            <input id="parkingSearchInput" type="text" class="form-control form-control-sm" placeholder="주차장 이름 검색" />
+            <button class="btn btn-sm btn-outline-primary" onclick="searchParking()" title="검색">
+              <i class="bi bi-search"></i>
+            </button>
+          </div>
+          <div class="form-check form-switch mb-2">
+            <input class="form-check-input" type="checkbox" id="onlyAvailableCheckbox"
+              onchange="filterParkingByRegion()">
+            <label class="form-check-label small" for="onlyAvailableCheckbox">주차 가능 주차장만 보기</label>
+          </div>
+
+          <div>
+            <small id="parkingCountText" class="text-muted">총 <span id="parkingCount">0</span>건 검색됨</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- 리스트 영역 -->
+      <div id="parkingListBox" class="list-group flex-grow-1 overflow-auto border-top" style="min-height: 100px;">
+        <!-- 리스트 항목이 여기에 추가됩니다 -->
+      </div>
+
+      <!-- 푸터 -->
+      <div class="border-top py-2 px-3 bg-light text-center">
+        <small class="text-muted">※ 주차장 이름을 입력하여 검색할 수 있습니다.</small>
+      </div>
+    </div>
+
+    <!-- 버스 상세 팝업 -->
+    <div id="routeDetailPopup" class="card shadow-sm border position-absolute d-none"
+      style="z-index: 2000; width: 250px;">
+      <div class="card-body p-3 small">
+        <div id="routeDetailPopupContent">로딩 중...</div>
+      </div>
+    </div>
+
+    <!-- 페이지 어딘가에 기본 틀만 마련 -->
+    <div id="routePanel" class="bus-route-panel" style="display: none;">
+      <div class="header" id="routePanelHeader"></div>
+      <div class="route-timeline" id="routeTimelineContainer"></div>
+    </div>
+
+    <!-- 🟢 노선 정보 패널 상단 -->
+    <div id="busRoutePanel" class="offcanvas offcanvas-end">
+      <div class="offcanvas-header">
+        <h5 id="routeHeader">노선 제목</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+      </div>
+      <div class="offcanvas-body">
+        <div id="routeSubInfo" class="text-muted mb-2">부제목 정보</div>
+
+        <div id="busStopListContainer">
+          <!-- 정류장 목록이 여기 채워짐 -->
+        </div>
+      </div>
+    </div>
+
+    <script th:src="@{/js/cctv.js}" defer></script> <!-- 수정 -->
+    <script type="module" src="/js/bus.js" defer></script>
+    <script type="module" src="/js/bike.js" defer></script>
+    <script type="module" src="/js/direction.js" defer></script>
+    <script type="module" src="/js/event-layer.js" defer></script>
+    <script src="/js/subway.js" defer></script>
+    <script src="/js/parking.js" defer></script>
+    <script src="/js/realtime-traffic.js" defer></script>
+    <script src="/js/traffic.js" defer></script> <!-- 메인 -->
+
+    <script>
+      function isVisible(el) {
+        return el && window.getComputedStyle(el).display !== "none";
+      }
+
+      function adjustLegendPositions() {
+        const trafficBox = document.getElementById("trafficLegendBox");
+        const parkingBox = document.getElementById("parkingLegendBox");
+
+        const trafficVisible = isVisible(trafficBox);
+        const parkingVisible = isVisible(parkingBox);
+
+        if (trafficVisible) {
+          trafficBox.style.position = "fixed";
+          trafficBox.style.bottom = "16px";
+
+          if (parkingVisible) {
+            const parkingWidth = parkingBox.offsetWidth || 240;
+            const gap = 20;
+            trafficBox.style.setProperty("right", `${parkingWidth + gap}px`, "important");
+          } else {
+            trafficBox.style.setProperty("right", "16px", "important");
+          }
+        }
+
+        if (parkingVisible) {
+          parkingBox.style.position = "fixed";
+          parkingBox.style.bottom = "16px";
+          parkingBox.style.right = "16px";
+        }
+      }
+
+      function showTrafficLegend() {
+        const box = document.getElementById("trafficLegendBox");
+        box.style.display = "block";
+        adjustLegendPositions();
+      }
+
+      function hideTrafficLegend() {
+        const box = document.getElementById("trafficLegendBox");
+        box.style.display = "none";
+        adjustLegendPositions();
+      }
+
+      function showParkingLegend() {
+        const box = document.getElementById("parkingLegendBox");
+        box.style.display = "block";
+        adjustLegendPositions();
+      }
+
+      function hideParkingLegend() {
+        const box = document.getElementById("parkingLegendBox");
+        box.style.display = "none";
+        adjustLegendPositions();
+      }
+    </script>
+
+</body>
+
+</html>

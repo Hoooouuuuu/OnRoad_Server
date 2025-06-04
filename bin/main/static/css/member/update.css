@@ -1,0 +1,163 @@
+/* ✅ 컨테이너 */
+.mypage-container {
+    width: 100%;
+    max-width: 600px;
+    margin: 50px auto;
+    background-color: white;
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* 공통 마진 */
+.mypage-container div {
+    margin-bottom: 20px;
+}
+
+/* ✅ 입력 그룹 */
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #333;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="date"] {
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 1rem;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    transition: all 0.3s;
+    box-sizing: border-box;
+}
+
+input:focus {
+    border-color: var(--medium-blue);
+    outline: none;
+}
+
+input[readonly] {
+    background-color: #e9ecef;
+    cursor: not-allowed;
+}
+
+.input-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.input-row input {
+    flex: 1;
+    min-width: 0;
+}
+
+.input-row button {
+    width: 100px;
+    padding: 0.6rem;
+    font-size: 0.95rem;
+    font-weight: bold;
+    border-radius: 8px;
+    background-color: #3d6ca6;
+    color: white;
+    border: none;
+    white-space: nowrap;
+    flex-shrink: 0;
+    height: 100%;
+}
+
+.input-row button:hover {
+    background-color: var(--medium-blue);
+}
+
+/* ✅ 버튼 스타일 */
+.full-btn {
+    padding: 0.7rem;
+    font-size: 1rem;
+    text-align: center;
+    border: 2px solid transparent;
+    border-radius: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    width: auto;
+}
+
+.black-btn {
+    background-color: #212529;
+    color: #fff;
+}
+
+.black-btn:hover {
+    background-color: #343a40;
+}
+
+.red-btn {
+    background-color: #dc3545;
+    color: #fff;
+}
+
+.red-btn:hover {
+    background-color: #c82333;
+}
+
+.gray-btn {
+    background-color: #6c757d;
+    color: #fff;
+}
+
+.gray-btn:hover {
+    background-color: #5a6268;
+}
+
+/* 3개 버튼이 한 줄로 정렬 */
+.form-button-wrapper {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 2rem;
+    flex-wrap: wrap;
+}
+
+/* ✅ 주소 그룹 */
+.address-group {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+/* ✅ 메시지 스타일 */
+.error {
+    font-size: 0.9rem;
+    color: red;
+    margin-top: 0.4rem;
+}
+
+/* ✅ 다크모드 */
+body.dark-mode .mypage-container,
+body.dark-mode .modal-content {
+    background-color: var(--card-bg);
+}
+
+/* ✅ 다크모드: 입력 필드 텍스트 색상 지정 */
+body.dark-mode label,
+body.dark-mode small {
+    color: var(--text-color) !important;
+}
+
+/* 다크모드용 모달 X 버튼 (닫기 버튼) 스타일 */
+body.dark-mode .btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%);
+    opacity: 0.9;
+}
+
+/* 🌚 다크모드 placeholder 구분 색상 */
+body.dark-mode input[readonly] {
+    background-color: #dde3e8;
+    color: #6c757d;
+}

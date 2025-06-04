@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+  <meta charset="UTF-8">
+  <title>게시글 상세보기</title>
+
+  <!-- ✅ Favicon -->
+  <link rel="icon" href="/image/main/icon.png" type="image/png">
+
+  <!-- ✅ Bootstrap & 외부 공통 리소스 -->
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.min.css"
+    rel="stylesheet">
+
+  <!-- ✅ jQuery (항상 Bootstrap JS보다 먼저!) -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+  <!-- ✅ Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- ✅ 프로젝트 전용 CSS & JS -->
+  <link rel="stylesheet" th:href="@{/css/home.css}">
+  <link rel="stylesheet" th:href="@{/css/board/view.css}">
+  <script th:src="@{/js/home.js}"></script>
+
+</head>
+
+<body class="d-flex flex-column min-vh-100">
+  <!-- ✅ 네브바 -->
+  <nav class="navbar navbar-expand-lg px-4 position-relative">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mobileMenu"
+      aria-controls="mobileMenu" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <!-- 웹(데스크톱)용 로고 -->
+    <a class="navbar-brand d-none d-lg-block position-absolute top-0 mt-2 ms-3" style="z-index: 1020;" th:href="@{/}">
+      <!-- 라이트 모드 로고 -->
+      <img src="/image/main/logo-light.png" alt="Logo Light" class="logo-light" style="height: 40px;">
+      <!-- 다크 모드 로고 -->
+      <img src="/image/main/logo-dark.png" alt="Logo Dark" class="logo-dark" style="height: 40px;">
+    </a>
+
+    <div class="position-absolute end-0 top-0 mt-2 me-3 d-flex align-items-center gap-2">
+      <th:block sec:authorize="isAuthenticated()">
+        <div class="dropdown">
+          <button class="btn login-btn dropdown-toggle rounded-pill px-3 py-2" type="button" id="userDropdown"
+            data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-person-circle me-1"></i> 내정보
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end my-2 auth-dropdown" aria-labelledby="userDropdown">
+            <li><a class="dropdown-item" th:href="@{/member/mypage}">마이페이지</a></li>
+            <li>
+              <form th:action="@{/logout}" method="post">
+                <button type="submit" class="dropdown-item">로그아웃</button>
+              </form>
+            </li>
+          </ul>
+        </div>
+      </th:block>
+      <th:block sec:authorize="isAnonymous()">
+        <a th:href="@{/auth/login}" class="btn login-btn rounded-pill px-3 py-2">
+          <i class="bi bi-person-circle me-1"></i> 로그인
+        </a>
+      </th:block>
+      <button id="toggle-mode" class="btn btn-outline-light">🌙</button>
+    </div>
+
+    <!-- 모바일 메뉴 안에 있는 로고 -->
+    <div class="collapse navbar-collapse justify-content-center" id="mobileMenu">
+      <div class="d-lg-none text-center w-100">
+        <a class="navbar-brand d-lg-none mt-2 d-inline-block" th:href="@{/}">
+          <!-- 라이트 모드 로고 -->
+          <img src="/image/main/logo-light.png" alt="Logo Light" class="logo-light" style="height: 40px;">
+          <!-- 다크 모드 로고 -->
+          <img src="/image/main/logo-dark.png" alt="Logo Dark" class="logo-dark" style="height: 40px;">
+        </a>
+        <hr />
+      </div>
+
+      <ul class="navbar-nav text-center">
+        <li class="nav-item position-relative">
+          <a class="nav-link d-flex align-items-center justify-content-center" href="#" id="mobileBoardDropdown"
+            data-bs-toggle="collapse" data-bs-target="#boardDropdownMenu" aria-expanded="false"
+            aria-controls="boardDropdownMenu">
+            게시판
+            <i class="bi bi-chevron-down ms-2 arrow-icon"></i>
+          </a>
+          </a>
+          <div class="collapse" id="boardDropdownMenu">
+            <ul class="list-unstyled ps-0">
+              <li><a class="dropdown-item text-center" th:href="@{/board/list(categoryId=2)}">자유게시판</a></li>
+              <li><a class="dropdown-item text-center" th:href="@{/board/list(categoryId=3)}">민원게시판</a></li>
+            </ul>
+          </div>
+        </li>
+        <li class="nav-item"><a class="nav-link" th:href="@{/chart-view}">통계 & 자료</a></li>
+        <li class="nav-item"><a class="nav-link" th:href="@{/pages/map/traffic}">지도</a></li>
+        <li class="nav-item"><a class="nav-link" th:href="@{/news-view}">뉴스</a></li>
+        <li class="nav-item"><a class="nav-link" href="#weather">날씨</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="view-container">
+    <h2 th:switch="${post.categoryId}">
+      <span th:case="1">[공지사항]</span>
+      <span th:case="2">[자유게시판]</span>
+      <span th:case="3">[민원게시판]</span>
+    </h2>
+
+    <h3 class="text-center" th:text="${post.subject}">제목</h3>
+
+    <div class="view-meta">
+      <p><strong>작성자 :</strong> <span th:text="${post.nickName}">닉네임</span></p>
+      <p><strong>작성일 :</strong> <span th:text="${#temporals.format(post.writedate, 'yyyy-MM-dd HH:mm')}"></span></p>
+      <p><strong>조회수 :</strong> <span th:text="${post.hit}"></span></p>
+    </div>
+
+    <div class="view-content" th:text="${post.content}">내용</div>
+
+    <!-- 첨부 이미지 섹션 -->
+    <div class="attachment-section">
+      <h5>첨부 이미지</h5>
+
+      <!-- 유효한 이미지가 1개 이상 있을 때만 출력 -->
+      <div th:if="${post.imageFileNames != null and !post.imageFileNames.?[imagePath != null].isEmpty()}">
+        <div th:each="image : ${post.imageFileNames}">
+          <img th:if="${image.imagePath != null}" th:src="${image.imagePath}" alt="게시글 이미지" width="400">
+        </div>
+      </div>
+
+      <!-- 유효한 이미지가 하나도 없을 때 -->
+      <div th:unless="${post.imageFileNames != null and !post.imageFileNames.?[imagePath != null].isEmpty()}">
+        <p>첨부된 이미지가 없습니다.</p>
+      </div>
+    </div>
+
+    <!-- ✅ 모든 버튼을 하나의 그룹으로 묶기 -->
+    <div class="button-group my-4">
+      <!-- 수정/삭제: 작성자 본인 또는 관리자만 -->
+      <th:block th:if="${canModify}">
+        <button type="button"
+          th:onclick="|location.href='/board/update/${post.categoryId}/${post.boardSeq}?page=${pageNum}&originCategoryId=${originCategoryId}'|">
+          수정하기
+        </button>
+
+        <button type="button" class="delete"
+          th:onclick="|if(confirm('정말 삭제하시겠습니까?')) location.href='/board/delete/${post.boardNum}?page=${pageNum}&originCategoryId=${originCategoryId}'|">
+          삭제하기
+        </button>
+      </th:block>
+
+      <!-- 목록보기: 항상 표시 -->
+      <button type="button" th:onclick="|location.href='/board/list?page=${pageNum}&categoryId=${originCategoryId}'|">
+        목록보기
+      </button>
+
+    </div>
+
+    <!-- ✅ 댓글 리스트 -->
+    <div class="reply-list mt-4">
+      <!-- 제목 + 버튼 한 줄로 만들기 -->
+      <div class="button-group d-flex justify-content-between align-items-center mb-3">
+        <h5 class="mb-0">댓글</h5>
+        <th:block sec:authorize="isAuthenticated()">
+          <button type="button" id="comment-toggle-btn" onclick="toggleCommentForm()" class="reply-button">
+            댓글쓰기
+          </button>
+        </th:block>
+      </div>
+
+      <div th:if="${#lists.isEmpty(replies)}">
+        <p>등록된 댓글이 없습니다.</p>
+      </div>
+
+      <div th:each="reply : ${replies}" class="border-top py-3">
+        <p><strong th:text="${reply.member.nickName}">작성자</strong></p>
+        <p th:text="${reply.content}">댓글 내용</p>
+        <p class="text-muted" th:text="${#temporals.format(reply.writedate, 'yyyy-MM-dd HH:mm')}">작성일</p>
+      </div>
+
+      <!-- ✅ 댓글 폼을 리스트 아래로 이동 -->
+      <div id="comment-form" style="display: none; margin-top: 20px;">
+        <form th:action="@{/reply/write}" method="post">
+          <input type="hidden" name="boardNum" th:value="${post.boardNum}" />
+          <textarea name="content" placeholder="댓글을 입력하세요" required
+            style="width: 100%; height: 100px; resize: none;"></textarea>
+          <br />
+          <div class="comment-submit">
+            <button type="submit">댓글등록</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <button id="scrollToTopBtn" class="btn btn-warning rounded-circle shadow">
+    <i class="bi bi-arrow-up"></i>
+  </button>
+
+  <!-- ✅ 푸터 -->
+  <footer class="footer">
+    ⓒ 2025 ROAD TRAFFIC Corp. All rights reserved.
+  </footer>
+
+  <script>
+    function toggleCommentForm() {
+      const form = document.getElementById("comment-form");
+      const button = document.getElementById("comment-toggle-btn");
+      form.style.display = "block";
+      if (button) button.style.display = "none";
+    }
+  </script>
+
+</body>
+
+</html>

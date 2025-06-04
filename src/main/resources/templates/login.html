@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="_csrf" th:content="${_csrf.token}">
+  <meta name="_csrf_header" th:content="${_csrf.headerName}">
+  <title>로그인</title>
+
+  <!-- ✅ Favicon -->
+  <link rel="icon" href="/image/main/icon.png" type="image/png">
+
+  <!-- ✅ Bootstrap & 외부 공통 리소스 -->
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.min.css"
+    rel="stylesheet">
+
+  <!-- ✅ jQuery (항상 Bootstrap JS보다 먼저!) -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+  <!-- ✅ Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- ✅ 프로젝트 전용 CSS & JS -->
+  <link rel="stylesheet" th:href="@{/css/home.css}">
+  <link rel="stylesheet" th:href="@{/css/login.css}">
+  <script th:src="@{/js/home.js}"></script>
+</head>
+
+<body class="d-flex flex-column min-vh-100">
+  <!-- ✅ 네브바 -->
+  <nav class="navbar navbar-expand-lg px-4 position-relative">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mobileMenu"
+      aria-controls="mobileMenu" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <!-- 웹(데스크톱)용 로고 -->
+    <a class="navbar-brand d-none d-lg-block position-absolute top-0 mt-2 ms-3" style="z-index: 1020;" th:href="@{/}">
+      <!-- 라이트 모드 로고 -->
+      <img src="/image/main/logo-light.png" alt="Logo Light" class="logo-light" style="height: 40px;">
+      <!-- 다크 모드 로고 -->
+      <img src="/image/main/logo-dark.png" alt="Logo Dark" class="logo-dark" style="height: 40px;">
+    </a>
+
+    <div class="position-absolute end-0 top-0 mt-2 me-3 d-flex align-items-center gap-2">
+      <th:block sec:authorize="isAuthenticated()">
+        <div class="dropdown">
+          <button class="btn login-btn dropdown-toggle rounded-pill px-3 py-2" type="button" id="userDropdown"
+            data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-person-circle me-1"></i> 내정보
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end my-2 auth-dropdown" aria-labelledby="userDropdown">
+            <li><a class="dropdown-item" th:href="@{/member/mypage}">마이페이지</a></li>
+            <li>
+              <form th:action="@{/logout}" method="post">
+                <button type="submit" class="dropdown-item">로그아웃</button>
+              </form>
+            </li>
+          </ul>
+        </div>
+      </th:block>
+      <th:block sec:authorize="isAnonymous()">
+        <a th:href="@{/auth/login}" class="btn login-btn rounded-pill px-3 py-2">
+          <i class="bi bi-person-circle me-1"></i> 로그인
+        </a>
+      </th:block>
+      <button id="toggle-mode" class="btn btn-outline-light">🌙</button>
+    </div>
+
+    <!-- 모바일 메뉴 안에 있는 로고 -->
+    <div class="collapse navbar-collapse justify-content-center" id="mobileMenu">
+      <div class="d-lg-none text-center w-100">
+        <a class="navbar-brand d-lg-none mt-2 d-inline-block" th:href="@{/}">
+          <!-- 라이트 모드 로고 -->
+          <img src="/image/main/logo-light.png" alt="Logo Light" class="logo-light" style="height: 40px;">
+          <!-- 다크 모드 로고 -->
+          <img src="/image/main/logo-dark.png" alt="Logo Dark" class="logo-dark" style="height: 40px;">
+        </a>
+        <hr />
+      </div>
+
+      <ul class="navbar-nav text-center">
+        <li class="nav-item position-relative">
+          <a class="nav-link d-flex align-items-center justify-content-center" href="#" id="mobileBoardDropdown"
+            data-bs-toggle="collapse" data-bs-target="#boardDropdownMenu" aria-expanded="false"
+            aria-controls="boardDropdownMenu">
+            게시판
+            <i class="bi bi-chevron-down ms-2 arrow-icon"></i>
+          </a>
+          </a>
+          <div class="collapse" id="boardDropdownMenu">
+            <ul class="list-unstyled ps-0">
+              <li><a class="dropdown-item text-center" th:href="@{/board/list(categoryId=2)}">자유게시판</a></li>
+              <li><a class="dropdown-item text-center" th:href="@{/board/list(categoryId=3)}">민원게시판</a></li>
+            </ul>
+          </div>
+        </li>
+        <li class="nav-item"><a class="nav-link" th:href="@{/chart-view}">통계 & 자료</a></li>
+        <li class="nav-item"><a class="nav-link" th:href="@{/pages/map/traffic}">지도</a></li>
+        <li class="nav-item"><a class="nav-link" th:href="@{/news-view}">뉴스</a></li>
+        <li class="nav-item"><a class="nav-link" href="#weather">날씨</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- ✅ 로그인 폼 본문 -->
+  <main class="main-content d-flex justify-content-center align-items-center" style="min-height: calc(100vh - 150px);">
+    <div class="login-container p-5 rounded-4 shadow">
+
+      <!-- 제목 -->
+      <h1 class="text-center mb-4">로그인</h1>
+
+      <!-- 로그인 Form -->
+      <form th:action="@{/login}" method="post">
+        <div class="mb-3">
+          <label for="username" class="form-label">아이디:</label>
+          <input type="text" class="form-control" id="username" name="username" required>
+        </div>
+
+        <div class="mb-4">
+          <label for="password" class="form-label">비밀번호:</label>
+          <input type="password" class="form-control" id="password" name="password" required>
+        </div>
+
+        <div class="d-grid mb-3">
+          <button type="submit" class="btn btn-login">로그인</button>
+        </div>
+      </form>
+
+      <!-- 아이디/비밀번호 찾기 -->
+      <div class="row gx-2 mb-4">
+        <div class="col-6">
+          <button type="button" class="btn btn-find-id w-100" data-bs-toggle="modal" data-bs-target="#findIdModal">
+            아이디 찾기
+          </button>
+        </div>
+        <div class="col-6">
+          <button type="button" class="btn btn-find-password w-100" data-bs-toggle="modal"
+            data-bs-target="#findPasswordModal">
+            비밀번호 찾기
+          </button>
+        </div>
+      </div>
+
+      <!-- 소셜 로그인 -->
+      <div class="border-top pt-4">
+        <label class="signup-label text-center d-block mb-2">회원가입/간편로그인</label>
+        <div class="d-flex justify-content-center gap-3">
+          <a th:href="@{/oauth2/authorization/naver}">
+            <img th:src="@{/image/naver-logo.png}" alt="네이버 로그인" style="height: 40px;">
+          </a>
+          <a th:href="@{/oauth2/authorization/kakao}">
+            <img th:src="@{/image/kakao-logo.png}" alt="카카오 로그인" style="height: 40px;">
+          </a>
+          <a th:href="@{/oauth2/authorization/google}">
+            <img th:src="@{/image/google-logo.png}" alt="구글 로그인" style="height: 40px;">
+          </a>
+        </div>
+      </div>
+
+      <!-- ✅ 아이디 찾기 모달 -->
+      <div class="modal fade" id="findIdModal" tabindex="-1" aria-labelledby="findIdModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="findIdModalLabel">아이디 찾기</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
+            </div>
+            <div class="modal-body">
+              <form id="findIdForm" th:action="@{/find-id}" method="post">
+                <div class="mb-3">
+                  <label for="findIdEmail" class="form-label">가입한 이메일 주소</label>
+                  <input type="email" class="form-control" id="findIdEmail" name="email" required>
+                </div>
+                <button type="button" class="btn btn-find-id w-100" id="findIdSubmitButton">아이디 찾기</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ✅ 비밀번호 찾기 모달 -->
+      <div class="modal fade" id="findPasswordModal" tabindex="-1" aria-labelledby="findPasswordModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="findPasswordModalLabel">비밀번호 찾기</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="닫기"></button>
+            </div>
+            <div class="modal-body">
+              <form id="findPasswordForm" th:action="@{/find-password}" method="post">
+                <div class="mb-3">
+                  <label for="findPwdUserId" class="form-label">아이디</label>
+                  <input type="text" class="form-control" id="findPwdUserId" name="userId" required>
+                </div>
+                <div class="mb-3">
+                  <label for="findPwdEmail" class="form-label">가입한 이메일 주소</label>
+                  <input type="email" class="form-control" id="findPwdEmail" name="email" required>
+                </div>
+                <div class="mb-3">
+                  <label for="findPwdPhone" class="form-label">가입한 전화번호</label>
+                  <input type="text" class="form-control" id="findPwdPhone" name="phoneNumber" required>
+                </div>
+                <button type="button" class="btn btn-find-password w-100" id="findPasswordSubmitButton">비밀번호 찾기</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div> <!-- .login-container -->
+  </main>
+
+  <!-- ✅ 푸터 -->
+  <footer class="footer">
+    ⓒ 2025 ROAD TRAFFIC Corp. All rights reserved.
+  </footer>
+
+  <script>
+    $(document).ready(function () {
+
+      // CSRF 토큰 읽어오기
+      const token = $("meta[name='_csrf']").attr("content");
+      const header = $("meta[name='_csrf_header']").attr("content");
+
+      // ✅ 아이디 찾기 버튼
+      $('#findIdSubmitButton').click(function () {
+        const email = $('#findIdEmail').val().trim().toLowerCase();
+
+        if (!email) {
+          alert('이메일을 입력해주세요.');
+          return;
+        }
+
+        $.ajax({
+          type: "POST",
+          url: "/find-id",
+          data: { email: email },
+          beforeSend: function (xhr) {  // ✅ 헤더에 CSRF 토큰 추가
+            xhr.setRequestHeader(header, token);
+          },
+          success: function (response) {
+            if (response === "success") {
+              alert("입력하신 이메일로 아이디를 발송했습니다.");
+              $('#findIdModal').modal('hide');
+            } else {
+              alert("해당 이메일로 가입된 사용자가 없습니다.");
+            }
+          },
+          error: function (xhr, status, error) {
+            console.error("오류:", error);
+            alert("서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+          }
+        });
+      });
+
+      // ✅ 모달 열릴 때 이메일 입력창에 포커스
+      $('#findPasswordSubmitButton').click(function () {
+        const userId = $('#findPwdUserId').val().trim();
+        const email = $('#findPwdEmail').val().trim().toLowerCase();
+        const phone = $('#findPwdPhone').val().trim();
+
+        if (!userId || !email || !phone) {
+          alert('모든 정보를 입력해주세요.');
+          return;
+        }
+
+        const token = $("meta[name='_csrf']").attr("content");
+        const header = $("meta[name='_csrf_header']").attr("content");
+
+        $.ajax({
+          type: "POST",
+          url: "/find-password",
+          data: {
+            userId: userId,
+            email: email,
+            phoneNumber: phone
+          },
+          beforeSend: function (xhr) {
+            xhr.setRequestHeader(header, token);
+          },
+          success: function (response) {
+            alert("임시 비밀번호를 이메일로 발송했습니다.");
+            $('#findPasswordModal').modal('hide');
+          },
+          error: function (xhr, status, error) {
+            console.error("오류:", error);
+            alert("서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+          }
+        });
+      });
+    });
+
+    // ✅ 별도 에러 알림
+    window.addEventListener('DOMContentLoaded', function () {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.has('error')) {
+        alert('아이디 또는 비밀번호가 일치하지 않습니다.');
+      }
+    });
+  </script>
+
+</body>
+
+</html>

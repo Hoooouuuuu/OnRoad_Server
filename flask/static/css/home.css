@@ -1,0 +1,139 @@
+body.light-mode {
+  --blue-gray: #88a4c9;
+  --navy: #141E26;
+  --medium-blue: #4D6F8C;
+  --light-blue: #A3C9D9;
+  --dark-green: #2B402A;
+  --golden-yellow: #f5cc66;
+  --blue-gray-light: #AEBED2;
+  --background-color: #f5f7fa;
+  --text-color: #000;
+  --card-bg: #fff;
+}
+
+body.dark-mode {
+  --blue-gray: #5c7085;
+  --navy: #dce3e9;
+  --medium-blue: #95acbd;
+  --light-blue: #2D3748;
+  --dark-green: #10B981;
+  --golden-yellow: #eab849;
+  --blue-gray-light: #6b7b8f;
+  --background-color: #333232;
+  --text-color: #fff;
+  --card-bg: #2e2b2b;
+}
+
+body {
+  font-family: 'Pretendard', sans-serif;
+  background-color: var(--background-color);
+  color: var(--text-color);
+  padding-top: 80px;
+}
+
+main {
+  padding-top: 0;
+  margin-bottom: 60px;
+}
+
+h1, h2, h4 {
+  text-align: center;
+  color: var(--medium-blue);
+  margin: 2rem 0 1rem;
+  font-weight: bold;
+}
+
+.btn-primary,
+.btn-outline-primary {
+  font-weight: 600;
+  padding: 6px 14px;
+  font-size: 0.9rem;
+}
+
+.card {
+  transition: transform 0.3s ease;
+  background-color: var(--card-bg);
+  color: var(--text-color);
+  border: none;
+  border-radius: 12px;
+}
+
+.card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+}
+
+.card .card-title {
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.card .btn {
+  font-weight: 600;
+}
+
+.card-text {
+  font-size: 0.95rem;
+}
+
+.list-group-item {
+  background-color: var(--card-bg);
+  color: var(--text-color);
+  border-color: var(--blue-gray-light);
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.list-group-item a {
+  color: var(--text-color);
+  text-decoration: none;
+}
+
+.list-group-item a:hover {
+  color: #6495ED;
+  text-decoration: underline;
+}
+
+iframe {
+  border-radius: 8px;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+}
+
+.footer {
+  color: white;
+  background-color: var(--light-blue);
+  text-align: center;
+  padding: 20px 0;
+  font-size: 0.95rem;
+  margin-top: auto;
+}
+
+.bg-warning {
+  background-color: #ffec99 !important;
+  font-size: 0.95rem;
+}
+
+/* 속보 marquee 글자 크기와 여백 조정 */
+marquee {
+  font-size: 0.95rem;
+  padding-left: 10px;
+}
+
+/* Dark mode adjustments */
+body.dark-mode .list-group-item {
+  background-color: var(--card-bg);
+  color: var(--text-color);
+  border-color: var(--blue-gray-light);
+}
+
+body.dark-mode .card {
+  background-color: var(--card-bg);
+  color: var(--text-color);
+}
+
+body.dark-mode .bg-warning {
+  background-color: #e0c147 !important;
+  color: #222;
+}

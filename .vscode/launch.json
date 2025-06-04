@@ -1,0 +1,34 @@
+{
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Spring Boot-RoadApplication<road>",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "mainClass": "com.cctv.road.RoadApplication",
+      "projectName": "road",
+      "args": "",
+      "envFile": "${workspaceFolder}/.env"
+    },
+    {
+      "type": "java",
+      "name": "Spring Boot-RoadApplication<trafficRoad>",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "mainClass": "com.cctv.road.RoadApplication",
+      "projectName": "trafficRoad",
+      "args": "",
+      "envFile": "${workspaceFolder}/.env"
+    },
+    {
+      "type": "java",
+      "name": "Spring Boot-RoadApplication<trafficroad>",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "mainClass": "com.cctv.road.RoadApplication",
+      "projectName": "trafficroad",
+      "args": "",
+      "envFile": "${workspaceFolder}/.env"
+    }
+  ]
+}

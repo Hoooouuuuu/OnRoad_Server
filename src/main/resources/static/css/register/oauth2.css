@@ -1,0 +1,168 @@
+.oauth2-container {
+    width: 100%;
+    max-width: 700px;
+    margin: 50px auto;
+    background-color: white;
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* 공통 마진 */
+.oauth2-container div {
+    margin-bottom: 20px;
+}
+
+/* 레이블 */
+.oauth2-container label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #333;
+}
+
+/* 입력창 */
+.oauth2-container input[type="text"],
+.oauth2-container input[type="password"],
+.oauth2-container input[type="email"],
+.oauth2-container input[type="date"] {
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 1rem;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    transition: all 0.3s;
+    box-sizing: border-box;
+}
+
+/* 입력창 포커스 */
+.oauth2-container input:focus {
+    border-color: var(--medium-blue);
+    outline: none;
+}
+
+/* 버튼 공통 */
+.oauth2-container button[type="button"],
+.oauth2-container button[type="submit"],
+.oauth2-container .btn {
+    padding: 0.7rem;
+    font-size: 1rem;
+    border-radius: 8px;
+    width: 100%;
+    border: none;
+    font-weight: bold;
+    transition: all 0.3s;
+}
+
+/* 아이디/닉네임 중복확인 input-row */
+.check .input-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.check .input-row input {
+    flex: 1;
+    min-width: 0;
+}
+
+.check .input-row button {
+    width: 100px;
+    padding: 0.6rem;
+    font-size: 0.95rem;
+    font-weight: bold;
+    border-radius: 8px;
+    background-color: var(--medium-blue);
+    color: white;
+    border: none;
+    white-space: nowrap;
+    flex-shrink: 0;
+    height: 100%;
+}
+
+.check .input-row button:hover {
+    background-color: #3d6ca6;
+}
+
+/* 에러 메시지 */
+.oauth2-container .error {
+    color: #dc3545;
+    font-size: 0.9rem;
+    margin-top: 5px;
+}
+
+/* 성공 메시지 */
+.oauth2-container .duplicate-message {
+    font-size: 0.9rem;
+    margin-top: 5px;
+}
+
+/* 주소 입력 그룹 */
+.address-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.address-group input {
+    flex: 1 1 45%;
+}
+
+/* 하단 버튼 묶음 */
+.submit-group {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.submit-group .btn-submit,
+.submit-group .btn-cancel {
+    flex: 1;
+    text-align: center;
+    padding: 0.75rem;
+    font-weight: bold;
+    font-size: 1rem;
+    border-radius: 8px;
+}
+
+/* 회원가입 버튼 */
+.submit-group .btn-submit {
+    background-color: #4f81c7;
+    color: white;
+    border: none;
+}
+
+.submit-group .btn-submit:hover {
+    background-color: #3d6ca6;
+}
+
+/* 돌아가기 버튼 */
+.submit-group .btn-cancel {
+    background-color: #6c757d;
+    color: white;
+    text-decoration: none;
+    border: none;
+}
+
+.submit-group .btn-cancel:hover {
+    background-color: #5a6268;
+}
+
+/* 다크모드 스타일 */
+body.dark-mode .oauth2-container {
+    background-color: var(--card-bg);
+}
+
+body.dark-mode .oauth2-container label {
+    color: var(--text-color);
+}
+
+body.dark-mode .oauth2-container button {
+    background-color: var(--blue-gray);
+}
+
+body.dark-mode .oauth2-container button:hover {
+    background-color: var(--blue-gray-light);
+}
+

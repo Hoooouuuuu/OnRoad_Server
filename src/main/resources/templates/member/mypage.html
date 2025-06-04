@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="_csrf" th:content="${_csrf.token}" />
+  <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+  <title>마이페이지</title>
+
+  <!-- ✅ Favicon -->
+  <link rel="icon" href="/image/main/icon.png" type="image/png">
+
+  <!-- ✅ Bootstrap & 외부 공통 리소스 -->
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.min.css"
+    rel="stylesheet">
+
+  <!-- ✅ jQuery (항상 Bootstrap JS보다 먼저!) -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+  <!-- ✅ Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- ✅ 프로젝트 전용 CSS & JS -->
+  <link rel="stylesheet" th:href="@{/css/home.css}">
+  <link rel="stylesheet" th:href="@{/css/member/mypage.css}">
+  <script th:src="@{/js/home.js}"></script>
+
+</head>
+
+<body class="d-flex flex-column min-vh-100">
+  <!-- ✅ 네브바 -->
+  <nav class="navbar navbar-expand-lg px-4 position-relative">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mobileMenu"
+      aria-controls="mobileMenu" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <!-- 웹(데스크톱)용 로고 -->
+    <a class="navbar-brand d-none d-lg-block position-absolute top-0 mt-2 ms-3" style="z-index: 1020;" th:href="@{/}">
+      <!-- 라이트 모드 로고 -->
+      <img src="/image/main/logo-light.png" alt="Logo Light" class="logo-light" style="height: 40px;">
+      <!-- 다크 모드 로고 -->
+      <img src="/image/main/logo-dark.png" alt="Logo Dark" class="logo-dark" style="height: 40px;">
+    </a>
+
+    <div class="position-absolute end-0 top-0 mt-2 me-3 d-flex align-items-center gap-2">
+      <th:block sec:authorize="isAuthenticated()">
+        <div class="dropdown">
+          <button class="btn login-btn dropdown-toggle rounded-pill px-3 py-2" type="button" id="userDropdown"
+            data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-person-circle me-1"></i> 내정보
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end my-2 auth-dropdown" aria-labelledby="userDropdown">
+            <li><a class="dropdown-item" th:href="@{/member/mypage}">마이페이지</a></li>
+            <li>
+              <form th:action="@{/logout}" method="post">
+                <button type="submit" class="dropdown-item">로그아웃</button>
+              </form>
+            </li>
+          </ul>
+        </div>
+      </th:block>
+      <th:block sec:authorize="isAnonymous()">
+        <a th:href="@{/auth/login}" class="btn login-btn rounded-pill px-3 py-2">
+          <i class="bi bi-person-circle me-1"></i> 로그인
+        </a>
+      </th:block>
+      <button id="toggle-mode" class="btn btn-outline-light">🌙</button>
+    </div>
+
+    <!-- 모바일 메뉴 안에 있는 로고 -->
+    <div class="collapse navbar-collapse justify-content-center" id="mobileMenu">
+      <div class="d-lg-none text-center w-100">
+        <a class="navbar-brand d-lg-none mt-2 d-inline-block" th:href="@{/}">
+          <!-- 라이트 모드 로고 -->
+          <img src="/image/main/logo-light.png" alt="Logo Light" class="logo-light" style="height: 40px;">
+          <!-- 다크 모드 로고 -->
+          <img src="/image/main/logo-dark.png" alt="Logo Dark" class="logo-dark" style="height: 40px;">
+        </a>
+        <hr />
+      </div>
+
+      <ul class="navbar-nav text-center">
+        <li class="nav-item position-relative">
+          <a class="nav-link d-flex align-items-center justify-content-center" href="#" id="mobileBoardDropdown"
+            data-bs-toggle="collapse" data-bs-target="#boardDropdownMenu" aria-expanded="false"
+            aria-controls="boardDropdownMenu">
+            게시판
+            <i class="bi bi-chevron-down ms-2 arrow-icon"></i>
+          </a>
+          </a>
+          <div class="collapse" id="boardDropdownMenu">
+            <ul class="list-unstyled ps-0">
+              <li><a class="dropdown-item text-center" th:href="@{/board/list(categoryId=2)}">자유게시판</a></li>
+              <li><a class="dropdown-item text-center" th:href="@{/board/list(categoryId=3)}">민원게시판</a></li>
+            </ul>
+          </div>
+        </li>
+        <li class="nav-item"><a class="nav-link" th:href="@{/chart-view}">통계 & 자료</a></li>
+        <li class="nav-item"><a class="nav-link" th:href="@{/pages/map/traffic}">지도</a></li>
+        <li class="nav-item"><a class="nav-link" th:href="@{/news-view}">뉴스</a></li>
+        <li class="nav-item"><a class="nav-link" href="#weather">날씨</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="mypage-container">
+    <h2>마이페이지</h2>
+
+    <div class="form-button-wrapper d-flex justify-content-end mb-4">
+      <a href="javascript:history.back()" class="full-btn gray-btn">돌아가기</a>
+    </div>
+
+    <div><label>아이디</label><input type="text" th:value="${memberDTO.userId}" readonly></div>
+    <div><label>닉네임</label><input type="text" th:value="${memberDTO.nickName}" readonly></div>
+    <div><label>이름</label><input type="text" th:value="${memberDTO.name}" readonly></div>
+    <div><label>이메일</label><input type="email" th:value="${memberDTO.email}" readonly></div>
+    <div><label>전화번호</label><input type="text" th:value="${memberDTO.phoneNumber}" readonly></div>
+    <div><label>생년월일</label><input type="text" th:value="${#temporals.format(memberDTO.birthDate, 'yyyy-MM-dd')}"
+        readonly></div>
+    <div><label>주소</label><input type="text" th:value="${memberDTO.address}" readonly></div>
+
+    <div class="form-button-wrapper">
+      <button type="button" class="full-btn black-btn" id="openPasswordCheckModal">회원정보 수정</button>
+      <form id="deleteForm" th:action="@{/register/delete}" method="post">
+        <!-- ✅ CSRF 토큰 반드시 포함 -->
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+        <button type="submit" class="full-btn red-btn">회원 탈퇴</button>
+      </form>
+    </div>
+  </main>
+
+  <!-- ✅ 비밀번호 확인 모달 -->
+  <div class="modal fade" id="passwordCheckModal" tabindex="-1" aria-labelledby="passwordCheckModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form id="passwordCheckForm">
+          <div class="modal-header">
+            <h5 class="modal-title" id="passwordCheckModalLabel">비밀번호 확인</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <label for="currentPassword" class="form-label">현재 비밀번호</label>
+            <input type="password" class="form-control" id="currentPassword" name="currentPassword" required>
+            <div id="passwordError" class="text-danger mt-2" style="display:none;">비밀번호가 일치하지 않습니다.</div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary">확인</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <!-- 탈퇴 감사 모달 -->
+  <div class="modal fade" id="deleteThankYouModal" tabindex="-1" aria-labelledby="deleteThankYouLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content text-center">
+        <div class="modal-header">
+          <h5 class="modal-title" id="deleteThankYouLabel">회원 탈퇴 완료</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p>그 동안 저희 Same=을 이용해 주셔서 감사합니다.</p>
+          <p>더 나은 서비스로 다시 찾아뵙겠습니다 😊</p>
+        </div>
+        <div class="modal-footer justify-content-center">
+          <button type="button" class="btn btn-primary" id="goHomeBtn">메인으로 가기</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ✅ JS: 비밀번호 체크 후 이동 -->
+  <script>
+    document.getElementById('openPasswordCheckModal').addEventListener('click', function () {
+      var passwordModal = new bootstrap.Modal(document.getElementById('passwordCheckModal'));
+      passwordModal.show();
+    });
+
+    document.getElementById('passwordCheckForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const password = document.getElementById('currentPassword').value;
+      const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+      const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+      fetch('/register/check-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          [csrfHeader]: csrfToken
+        },
+        body: 'currentPassword=' + encodeURIComponent(password)
+      })
+        .then(response => {
+          if (response.ok) {
+            window.location.href = '/register/update';
+          } else {
+            document.getElementById('passwordError').style.display = 'block';
+          }
+        })
+        .catch(error => {
+          console.error('비밀번호 확인 실패', error);
+        });
+    });
+
+    document.getElementById('deleteForm').addEventListener('submit', function (e) {
+      const confirmed = confirm("정말 탈퇴하시겠습니까? 😥\n탈퇴하면 복구할 수 없습니다.");
+      if (!confirmed) {
+        e.preventDefault();
+      }
+    });
+
+    // 탈퇴 후 감사 모달 처리
+    window.addEventListener("DOMContentLoaded", function () {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get("deleted") === "true") {
+        const modal = new bootstrap.Modal(document.getElementById('deleteThankYouModal'));
+        modal.show();
+      }
+
+      document.getElementById('goHomeBtn')?.addEventListener('click', function () {
+        window.location.href = "/";
+      });
+    });
+  </script>
+
+  <button id="scrollToTopBtn" class="btn btn-warning rounded-circle shadow">
+    <i class="bi bi-arrow-up"></i>
+  </button>
+
+  <!-- ✅ 푸터 -->
+  <footer class="footer">
+    ⓒ 2025 ROAD TRAFFIC Corp. All rights reserved.
+  </footer>
+
+</body>
+
+</html>
