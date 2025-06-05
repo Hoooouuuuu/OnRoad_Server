@@ -41,6 +41,14 @@ function clearAllMapMarkers() {
     window.customMarkers = [];
   }
 
+  if (window.activeInfoWindow) {
+  window.activeInfoWindow.setMap(null);
+  if (typeof window.activeInfoWindow.onRemove === 'function') {
+    window.activeInfoWindow.onRemove(); // DOM 제거 보장
+  }
+  window.activeInfoWindow = null;
+}
+
   // console.log('🧹 모든 마커 제거 완료');
 }
 
@@ -235,9 +243,19 @@ document.addEventListener('DOMContentLoaded', () => {
     {
       id: 'sidebarBikeBtn',
       key: 'bike',
+      panelId: 'bikeFilterPanel',
       onActivate: () => {
         resetPanelsAndCloseVideo();
         panelStates.bike = true;
+
+        const panel = document.getElementById('bikeFilterPanel');
+        if (panel) {
+          panel.style.display = 'flex'; // ✅ 핵심 코드
+          console.log('✅ bikeFilterPanel 표시됨');
+        } else {
+          console.warn('❌ bikeFilterPanel 찾을 수 없음');
+        }
+
         window.moveToMyLocation?.();
       },
       onDeactivate: () => {
@@ -247,6 +265,13 @@ document.addEventListener('DOMContentLoaded', () => {
           window.userPositionMarker.setMap(null);
           window.userPositionMarker = null;
         }
+        if (window.activeInfoWindow) {
+  window.activeInfoWindow.setMap(null);  // 지도에서 제거
+  if (typeof window.activeInfoWindow.onRemove === 'function') {
+    window.activeInfoWindow.onRemove();  // DOM에서도 제거 (중요!)
+  }
+  window.activeInfoWindow = null;
+}
       }
     },
     {
