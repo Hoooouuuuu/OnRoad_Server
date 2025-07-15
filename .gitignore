@@ -12,6 +12,9 @@
 .gradle/
 build/
 
+# Gradle wrapper는 필요하므로 제외하지 않음
+# gradlew, gradlew.bat, gradle/wrapper/* 은 Git에 포함돼야 함
+
 # -----------------------
 # ⚙️ IDE 설정 (IntelliJ 등)
 # -----------------------
