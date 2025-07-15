@@ -53,3 +53,6 @@ test-output/
 # Docker 관련 파일
 docker-compose.yml
 Dockerfile/team_project_db.sql
+
+# 예외 처리
+!gradle/wrapper/gradle-wrapper.jar
