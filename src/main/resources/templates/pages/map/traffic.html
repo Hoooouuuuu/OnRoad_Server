@@ -27,6 +27,7 @@
   <script th:src="@{/js/home.js}" defer></script>
   <script type="text/javascript" src="https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=ge5761tj1f"></script>
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvg@3.0.7/lib/umd.min.js"></script>
 
   <script th:inline="javascript">
     /*<![CDATA[*/
@@ -118,14 +119,15 @@
   <div class="main-content d-flex">
     <!-- 사이드바 버튼 -->
     <aside class="sidebar">
-      <button id="sidebarCctvBtn" title="CCTV"><i class="fas fa-video"></i></button>
-      <button id="sidebarEventBtn" title="도로 이벤트"><i
+      <button id="sidebarCctvBtn" class="sidebar-button" title="CCTV"><i class="fas fa-video"></i></button>
+      <button id="sidebarEventBtn" class="sidebar-button" title="도로 이벤트"><i
           class="fas fa-triangle-exclamation popup-box event-popup"></i></button>
-      <button id="sidebarBusBtn" title="버스 위치"><i class="fas fa-bus"></i></button>
-      <button id="sidebarRouteBtn" title="길찾기"><i class="fas fa-route"></i></button>
-      <button id="sidebarBikeBtn" title="따릉이 대여소"><i class="fas fa-bicycle popup-box bike-popup"></i></button>
-      <button id="sidebarSubwayBtn" title="지하철"><i class="fas fa-train-subway"></i></button>
-      <button id="sidebarParkingBtn" title="주차장"><i class="fas fa-p"></i></button>
+      <button id="sidebarBusBtn" class="sidebar-button" title="버스 위치"><i class="fas fa-bus"></i></button>
+      <button id="sidebarRouteBtn" class="sidebar-button" title="길찾기"><i class="fas fa-route"></i></button>
+      <button id="sidebarBikeBtn" class="sidebar-button" title="따릉이 대여소"><i
+          class="fas fa-bicycle popup-box bike-popup"></i></button>
+      <button id="sidebarSubwayBtn" class="sidebar-button" title="지하철" onclick="window.initSubwaySvgView(true)">
+        <button id="sidebarParkingBtn" class="sidebar-button" title="주차장"><i class="fas fa-p"></i></button>
     </aside>
 
     <!-- 지도 -->
@@ -362,55 +364,63 @@
 
 
     <!--따릉이 상세정보 왼쪽 패널 -->
-    <div id="stationDetailPanel" class="info-panel" style="display: none;">
-      <h4 id="detailStationName">🚲 대여소 이름</h4>
-      <p id="detailStationInfo">여기에 상세 설명이 들어갑니다.</p>
-      <p id="detailStationDistance">거리: 계산 중...</p>
+    <!-- 🟩 내 위치 기반 따릉이 패널 -->
+    <div id="bikeFilterPanel" class="bike-panel" style="display: none;">
+      <!-- 헤더 -->
+      <div class="flex-shrink-0">
+        <div class="bike-header py-2 px-3 d-flex justify-content-between align-items-center">
+          <h5 class="mb-0"><i class="bi bi-bicycle me-1"></i> 따릉이 정보</h5>
+          <button class="btn btn-sm btn-light" onclick="resetBikePanel()" title="초기화">
+            <i class="bi bi-arrow-clockwise"></i>
+          </button>
+        </div>
 
+        <!-- 본문 -->
+        <div class="p-3 d-flex flex-column gap-3">
+          <button class="btn-outline-primary btn btn-sm w-100" onclick="moveToMyLocation()">📍 내 위치로 이동</button>
+          <button class="btn-outline-danger btn btn-sm w-100" onclick="cancelBikeRoute()">❌ 경로 취소</button>
 
-      <!-- 따릉이 안내 / 취소 버튼 -->
-      <div class="btn-group mt-3 w-100">
-        <button class="btn btn-primary w-100" onclick="goToNaverRoute()">🧭 안내</button>
-        <button class="btn btn-secondary w-100" onclick="cancelBikeRoute()">❌ 취소</button>
+          <div id="bikeStationInfoBox" class="mt-3">
+            <h6 class="fw-bold border-bottom pb-2">🚲 추천 대여소</h6>
+            <div id="bikeStationInfoBody" class="text-muted">위치 정보를 불러오세요.</div>
+          </div>
+        </div>
       </div>
 
-      <!-- 따릉이 추천 / 위치 이동 버튼 -->
-      <div class="btn-group mt-3 w-100">
-        <button id="recommendBtn" class="btn btn-outline-success w-100">🚲 추천 대여소 보기</button>
-        <button id="moveToMyLocation" class="btn btn-outline-primary w-100">📍 내 위치로 이동</button>
+      <!-- 📍 주변 대여소 목록 -->
+      <div class="flex-grow-1 overflow-auto px-3 pb-3" id="bikeStationList" style="font-size: 0.9rem;">
+        <div class="text-muted">📍 주변 추천 대여소 목록을 불러옵니다...</div>
       </div>
 
-      <!-- 따릉이 ! -->
-      <div style="margin-top: 12px; text-align: right;">
-        <button id="closeDetailPanel" class="close-btn">닫기</button>
+      <!-- 푸터 -->
+      <div class="panel-footer text-center flex-shrink-0 py-2 px-3 border-top bg-light">
+        <small class="text-muted">※ 500m 이내의 대여소만 추천됩니다.</small>
       </div>
     </div>
 
     <!-- 🚇 지하철 패널 내부 -->
-    <div id="subwayFilterPanel" style="display: none; flex-direction: column;">
-      <h5 class="mt-3 px-3">🚇 지하철 정보</h5>
-
-      <!-- 호선 체크 필터 -->
-      <div class="px-3 mb-2">
-        <label class="form-label">표시할 호선 선택</label>
-        <div id="lineCheckboxContainer" class="d-flex flex-wrap gap-2"></div>
-      </div>
-
-      <!-- 출발/도착역 입력 -->
-      <div class="px-3">
-        <div class="input-group mb-2">
-          <input id="startStationInput" class="form-control" placeholder="🚩 탑승역 (예: 서울역)" />
-        </div>
-        <div class="input-group mb-2">
-          <input id="endStationInput" class="form-control" placeholder="🏁 하차역 (예: 종각)" />
+    <div id="subwayFilterPanel" class="subway-panel" style="display: none;">
+      <!-- 헤더 -->
+      <div class="flex-shrink-0">
+        <div class="bike-header py-2 px-3 d-flex justify-content-between align-items-center">
+          <h5 class="mb-0"><i class="fas fa-train-subway me-1"></i> 지하철 정보</h5>
+          <button class="btn btn-sm btn-light" onclick="window.initSubwaySvgView(true)" title="다시 로드">
+            <i class="bi bi-arrow-clockwise"></i>
+          </button>
         </div>
 
-        <!-- 경로 검색 버튼 -->
-        <button class="btn btn-success w-100 mb-2" onclick="findSubwayRoute()">🔍 경로 검색</button>
+        <!-- 본문 -->
+        <div class="p-3 d-flex flex-column gap-3">
+          <div id="lineCheckboxContainer" class="d-flex flex-wrap gap-2">
+            <!-- 지하철 노선 체크박스들이 JS로 삽입됨 -->
+          </div>
+        </div>
       </div>
 
-      <!-- ✅ 경로 결과 출력 -->
-      <div id="routeResultBox" class="px-3 mb-3" style="font-size: 14px;"></div>
+      <!-- 안내 -->
+      <div class="panel-footer text-center flex-shrink-0 py-2 px-3 border-top bg-light">
+        <small class="text-muted">※ 노선을 선택하면 실시간 열차 아이콘이 표시됩니다.</small>
+      </div>
     </div>
 
     <!-- 🅿️ 주차장 검색 패널 -->
@@ -512,6 +522,12 @@
           <!-- 정류장 목록이 여기 채워짐 -->
         </div>
       </div>
+    </div>
+
+    <!-- ✅ 지하철 SVG용 뷰 추가 -->
+    <div id="svgView"
+      style="display: none; position: absolute; top: var(--navbar-height); left: var(--sidebar-width); width: calc(100% - var(--sidebar-width)); height: calc(100% - var(--navbar-height)); z-index: 999; background-color: white;">
+      <div id="svgContainer" style="width: 100%; height: 100%; overflow: hidden;"></div>
     </div>
 
     <script th:src="@{/js/cctv.js}" defer></script> <!-- 수정 -->

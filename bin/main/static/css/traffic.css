@@ -121,8 +121,7 @@ aside.sidebar {
 }
 
 /* 🔵 CCTV 패널 */
-#cctvFilterPanel label,
-#bikeFilterPanel label {
+#cctvFilterPanel label {
   font-weight: bold;
   font-size: 15px;
   margin-bottom: 8px;
@@ -130,8 +129,7 @@ aside.sidebar {
   color: var(--navy);
 }
 
-#cctvFilterPanel input[type="text"],
-#bikeFilterPanel input[type="text"] {
+#cctvFilterPanel input[type="text"] {
   padding: 10px;
   border-radius: 8px;
   border: 1px solid #ccc;
@@ -139,8 +137,7 @@ aside.sidebar {
   width: 100%;
 }
 
-#cctvFilterPanel button,
-#bikeFilterPanel button {
+#cctvFilterPanel button {
   padding: 10px 16px;
   border-radius: 8px;
   font-size: 14px;
@@ -150,8 +147,7 @@ aside.sidebar {
   transition: all 0.2s ease;
 }
 
-#cctvFilterPanel button:hover,
-#bikeFilterPanel button:hover {
+#cctvFilterPanel button:hover {
   background-color: var(--medium-blue);
   color: white;
 }
@@ -645,7 +641,8 @@ aside.sidebar {
 /* 🅿️ 주차장 패널 */
 .parking-header,
 .bus-header,
-.route-header{
+.route-header,
+.bike-header {
   background-color: var(--blue-gray);
   color: white;
 }
@@ -672,7 +669,8 @@ aside.sidebar {
 
 #parkingFilterPanel button.btn-outline-primary,
 #busFilterPanel button.btn-outline-primary,
-#routeFilterPanel button.btn-outline-primary {
+#routeFilterPanel button.btn-outline-primary,
+#bikeFilterPanel button.btn-outline-primary {
   color: var(--medium-blue);
   border-color: var(--medium-blue);
   font-weight: 500;
@@ -681,7 +679,8 @@ aside.sidebar {
 
 #parkingFilterPanel button.btn-outline-primary:hover,
 #busFilterPanel button.btn-outline-primary:hover,
-#routeFilterPanel button.btn-outline-primary:hover {
+#routeFilterPanel button.btn-outline-primary:hover,
+#bikeFilterPanel button.btn-outline-primary:hover {
   background-color: var(--medium-blue);
   color: white;
 }
@@ -764,6 +763,18 @@ body.dark-mode {
   /* Bootstrap primary */
   color: white;
   border-color: #343a40;
+}
+
+#mapTypeControl {
+  position: absolute;
+  top: var(--navbar-height);
+  right: 20px;
+  z-index: 998; /* canvas보다 아래로 설정 */
+  transition: opacity 0.2s ease;
+}
+
+#mapTypeControl.hidden {
+  display: none !important;
 }
 
 #customZoomScroll {
@@ -871,7 +882,7 @@ body.dark-mode {
   overflow-y: auto;
 }
 
-#arrivalPanelBody > div {
+#arrivalPanelBody>div {
   font-size: 14px;
   line-height: 1.5;
 }
@@ -883,22 +894,29 @@ body.dark-mode {
   background-color: #fff;
   transition: background 0.2s ease;
 }
+
 #arrivalPanelBody .card:hover {
   background-color: #f8f9fa;
 }
+
 #arrivalPanelBody .card-body {
   font-size: 0.9rem;
 }
 
 /* 🔹 혼잡도 색상 표시 */
 .text-success {
-  color: #28a745 !important; /* 여유 */
+  color: #28a745 !important;
+  /* 여유 */
 }
+
 .text-warning {
-  color: #ffc107 !important; /* 보통 */
+  color: #ffc107 !important;
+  /* 보통 */
 }
+
 .text-danger {
-  color: #dc3545 !important; /* 혼잡 */
+  color: #dc3545 !important;
+  /* 혼잡 */
 }
 
 /* 🔹 상세 버튼 */
@@ -923,11 +941,12 @@ body.dark-mode {
 #routeDetailPopup {
   border-radius: 8px;
   background: #fff;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   padding: 10px;
   font-size: 0.85rem;
   z-index: 3000;
 }
+
 .route-popup-panel {
   position: absolute;
   top: 80px;
@@ -936,7 +955,7 @@ body.dark-mode {
   background: white;
   border: 1px solid #ddd;
   border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
   padding: 15px;
   width: 220px;
 }
@@ -970,18 +989,34 @@ body.dark-mode {
 }
 
 #arrivalPanelBody {
-  max-height: calc(100vh - 300px); /* 또는 적절한 값으로 조정 */
+  max-height: calc(100vh - 300px);
+  /* 또는 적절한 값으로 조정 */
   overflow-y: auto;
 }
 
-.clean-popup .popup-title {
-  font-size: 15px;
+/* 공통 텍스트 스타일 */
+.popup-title {
   font-weight: 600;
-  color: #0070f3;
-  margin-bottom: 4px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.popup-category,
+.popup-address,
+.popup-phone,
+.popup-title .label,
+.direction-duration-popup .popup-title {
+  font-size: 13px;
+  color: #6c757d;
+  font-weight: 500;
+}
+
+/* 기본 팝업 스타일 */
+.clean-popup .popup-title {
+  font-size: 15px;
+  color: #0070f3;
+  margin-bottom: 4px;
 }
 
 .clean-popup .popup-category {
@@ -991,10 +1026,15 @@ body.dark-mode {
 }
 
 .clean-popup .popup-address {
-  font-size: 13px;
   color: #666;
 }
 
+.popup-phone {
+  margin-top: 2px;
+  color: #555;
+}
+
+/* 버튼 스타일 */
 .clean-popup .popup-actions {
   display: flex;
   gap: 6px;
@@ -1018,32 +1058,14 @@ body.dark-mode {
   color: #0056b3;
 }
 
-.popup-phone {
-  font-size: 13px;
-  color: #555;
-  margin-top: 2px;
-}
-
+/* 길찾기 팝업 스타일 */
 .direction-duration-popup {
   background-color: white;
   border: 1px solid #ccc;
   padding: 10px 12px;
   border-radius: 10px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
   min-width: 130px;
-}
-
-.popup-title .label {
-  color: #6c757d;
-  font-size: 13px;
-  font-weight: 500;
-}
-
-.popup-duration {
-  font-size: 18px;
-  font-weight: bold;
-  color: #0d6efd;
-  margin-top: 4px;
 }
 
 .direction-duration-popup .popup-header {
@@ -1051,12 +1073,7 @@ body.dark-mode {
   padding: 4px 8px;
 }
 
-.direction-duration-popup .popup-title {
-  font-size: 13px;
-  color: #6c757d;
-  font-weight: 500;
-}
-
+.popup-duration,
 .direction-duration-popup .popup-duration {
   font-size: 18px;
   font-weight: bold;
@@ -1065,6 +1082,28 @@ body.dark-mode {
 }
 
 #nearbyPlaceList small.distance-text {
-  color: 	#28a197; /* 또는 위 추천 중 하나 */
+  color: #28a197;
+  /* 또는 위 추천 중 하나 */
   font-size: 12px;
+}
+
+#subwayCanvas {
+  position: absolute;
+  top: var(--navbar-height);
+  left: var(--sidebar-width);
+  width: calc(100% - var(--sidebar-width));
+  height: calc(100% - var(--navbar-height));
+  z-index: 999;
+  background-color: white;
+  display: none;
+  cursor: grab;
+}
+
+#subwayCanvas.zoomed {
+  cursor: zoom-in;
+}
+
+#subwayCanvas.fullscreen {
+  top: 0 !important;
+  height: 100vh !important;
 }

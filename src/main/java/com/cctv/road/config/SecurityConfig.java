@@ -87,7 +87,8 @@ public class SecurityConfig {
                 "/json/**", "/pages/**", "/api/**", "/api/weather/**",
                 "/member/find/**", "/find-id", "/find-password",
                 "/board/list/**", "/board/view/**", "/naver-driving-path/**",
-                "/chart-view", "/chart/**", "/pages/map/**", "/news-view/**"
+                "/chart-view", "/chart/**", "/pages/map/**", "/news-view/**",
+                "/svg/**"
                 )
             .permitAll()
             .anyRequest().authenticated())

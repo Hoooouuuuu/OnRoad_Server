@@ -41,6 +41,14 @@ function clearAllMapMarkers() {
     window.customMarkers = [];
   }
 
+  if (window.activeInfoWindow) {
+    window.activeInfoWindow.setMap(null);
+    if (typeof window.activeInfoWindow.onRemove === 'function') {
+      window.activeInfoWindow.onRemove(); // DOM 제거 보장
+    }
+    window.activeInfoWindow = null;
+  }
+
   // console.log('🧹 모든 마커 제거 완료');
 }
 
@@ -48,12 +56,22 @@ function resetPanelsAndCloseVideo() {
   // 🔄 모든 패널 상태 비활성화 및 UI 숨김
   for (const k in panelStates) {
     panelStates[k] = false;
-    document.getElementById(`sidebar${capitalize(k)}Btn`)?.classList.remove('active');
     document.getElementById(`${k}FilterPanel`)?.style.setProperty('display', 'none');
   }
 
   document.getElementById('eventListPanel')?.style.setProperty('display', 'none');
   hideVideoContainer();
+
+  // ✅ 지도 켜기 & SVG 끄기
+  const mapEl = document.getElementById('map');
+  const svgEl = document.getElementById('svgView');
+  if (mapEl) mapEl.style.display = 'block';
+  if (svgEl) svgEl.style.display = 'none';
+
+  // ✅ 지도 관련 UI 복구
+  if (typeof window.toggleSubwayModeUI === 'function') {
+    window.toggleSubwayModeUI(false);
+  }
 
   // ✅ 길찾기 리소스 및 상태 초기화
   window.routeActive = false;
@@ -108,7 +126,14 @@ function resetPanelsAndCloseVideo() {
     bootstrap.Offcanvas.getInstance(routePanel).hide();
   }
 
-  // ✅ 장소 리스트 초기화 (optional)
+  // ✅ SVG 초기화
+  const svgContainer = document.getElementById("svgContainer");
+  if (svgContainer) {
+    svgContainer.innerHTML = '';
+    svgContainer.dataset.loaded = 'false';
+  }
+
+  // ✅ 장소 리스트 초기화
   const placeList = document.getElementById('nearbyPlaceList');
   if (placeList) placeList.innerHTML = '<div class="text-muted">장소를 검색하세요.</div>';
 }
@@ -235,9 +260,19 @@ document.addEventListener('DOMContentLoaded', () => {
     {
       id: 'sidebarBikeBtn',
       key: 'bike',
+      panelId: 'bikeFilterPanel',
       onActivate: () => {
         resetPanelsAndCloseVideo();
         panelStates.bike = true;
+
+        const panel = document.getElementById('bikeFilterPanel');
+        if (panel) {
+          panel.style.display = 'flex'; // ✅ 핵심 코드
+          console.log('✅ bikeFilterPanel 표시됨');
+        } else {
+          console.warn('❌ bikeFilterPanel 찾을 수 없음');
+        }
+
         window.moveToMyLocation?.();
       },
       onDeactivate: () => {
@@ -246,6 +281,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (window.userPositionMarker) {
           window.userPositionMarker.setMap(null);
           window.userPositionMarker = null;
+        }
+        if (window.activeInfoWindow) {
+          window.activeInfoWindow.setMap(null);  // 지도에서 제거
+          if (typeof window.activeInfoWindow.onRemove === 'function') {
+            window.activeInfoWindow.onRemove();  // DOM에서도 제거 (중요!)
+          }
+          window.activeInfoWindow = null;
         }
       }
     },
@@ -338,32 +380,68 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     },
     {
-      id: 'sidebarSubwayBtn',
-      key: 'subway',
-      panelId: 'subwayFilterPanel',
-      onActivate: () => {
-        resetPanelsAndCloseVideo();
-        panelStates.subway = true;
-        document.getElementById('subwayFilterPanel')?.style.setProperty('display', 'flex');
-        window.subwayLayerVisible = true;
-        Promise.all([
-          window.generateSubwayGraph?.(),
-          window.loadStationCoordMapFromJson?.()
-        ]).then(([graph]) => {
-          window.subwayGraph = graph;
-          window.renderLineCheckboxes?.();
-          window.loadSubwayStations?.();
-        });
-      },
-      onDeactivate: () => {
-        panelStates.subway = false;
-        window.subwayLayerVisible = false;
-        window.clearSubwayLayer?.();
-        window.clearStationMarkers?.();
-        clearInterval(window.subwayRefreshInterval);
-        window.subwayRefreshInterval = null;
-      }
-    },
+  id: 'sidebarSubwayBtn',
+  key: 'subway',
+  panelId: 'subwayFilterPanel',
+
+  onActivate: () => {
+    // 📌 모든 패널과 영상 닫기
+    resetPanelsAndCloseVideo();
+    panelStates.subway = true;
+
+    // ✅ 지하철 SVG 렌더링 함수 호출
+    window.initSubwaySvgView(true);
+
+    // ✅ 지도 컨트롤 숨김
+    if (typeof window.toggleSubwayModeUI === 'function') {
+      window.toggleSubwayModeUI(true);  // 예: 상단 버튼들 숨기기
+    }
+
+    // ✅ 노선 필터 렌더링
+    if (typeof renderLineCheckboxes === 'function') {
+      renderLineCheckboxes();
+    }
+
+    // ✅ 역 좌표 데이터 로딩
+    if (typeof loadStationCoordMapFromJson === 'function') {
+      loadStationCoordMapFromJson();
+    }
+  },
+
+  onDeactivate: () => {
+    panelStates.subway = false;
+
+    // ✅ SVG 숨기기 + 초기화
+    const svgEl = document.getElementById("svgView");
+    const container = document.getElementById("svgContainer");
+
+    if (svgEl) svgEl.style.display = "none";
+    if (container) {
+      container.innerHTML = '';
+      container.dataset.loaded = 'false';
+    }
+
+    // ✅ 지도 다시 보이기
+    const mapEl = document.getElementById("map");
+    if (mapEl) mapEl.style.display = "block";
+
+    // ✅ 지도 컨트롤 다시 보이기
+    if (typeof window.toggleSubwayModeUI === 'function') {
+      window.toggleSubwayModeUI(false);
+    }
+
+    // ✅ 지하철 상태 초기화
+    window.subwayLayerVisible = false;
+    window.clearSubwayLayer?.();
+    window.clearStationMarkers?.();
+    window.clearSvgTrainMarkers?.();
+
+    if (window.subwayRefreshInterval) {
+      clearInterval(window.subwayRefreshInterval);
+      window.subwayRefreshInterval = null;
+    }
+  }
+},
     {
       id: 'sidebarParkingBtn',
       key: 'parking',
@@ -410,21 +488,40 @@ document.addEventListener('DOMContentLoaded', () => {
   ];
 
   // ✅ 버튼 클릭 등록
-  buttonConfigs.forEach(({ id, key, panelId, onActivate }) => {
+  // ✅ 버튼 클릭 등록
+  buttonConfigs.forEach(({ id, key, panelId, onActivate, onDeactivate }) => {
     const button = document.getElementById(id);
     if (!button) return;
 
     button.addEventListener('click', () => {
       const isAlreadyActive = panelStates[key];
 
-      // 모든 상태 false 및 초기화
+      // 모든 버튼에서 .active 제거
+      document.querySelectorAll('.sidebar-button').forEach(btn => {
+        btn.classList.remove('active');
+      });
+
+      // ✅ subway 제외: 다른 버튼 클릭 시 SVG 끄고 지도 다시 보이기
+      if (key !== 'subway') {
+        const mapEl = document.getElementById('map');
+        const svgEl = document.getElementById('svgView');
+        if (mapEl && svgEl) {
+          mapEl.classList.remove('d-none');
+          svgEl.classList.add('d-none');
+        }
+      }
+
       resetPanelsAndCloseVideo();
 
       if (!isAlreadyActive) {
-        // 이 버튼만 활성화
         panelStates[key] = true;
         button.classList.add('active');
+        console.log(`✅ ${key} 버튼 활성화됨`);
         onActivate?.();
+      } else {
+        panelStates[key] = false;
+        console.log(`❎ ${key} 버튼 비활성화됨`);
+        onDeactivate?.();
       }
     });
   });
@@ -604,3 +701,28 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
+
+function toggleMapTypeControl(show) {
+  const el = document.getElementById("mapTypeControl");
+  if (el) {
+    el.classList.toggle("hidden", !show);
+  }
+}
+
+// 지하철 진입 시:
+toggleMapTypeControl(false); // 숨기기
+
+// 지도 보기 복귀 시:
+toggleMapTypeControl(true); // 다시 보이기
+
+window.toggleSubwayModeUI = function (isSubway) {
+  const controlBox = document.getElementById("mapControlBox");
+  if (controlBox) {
+    controlBox.classList.toggle("d-none", isSubway);
+  }
+
+  const mapType = document.getElementById("mapTypeControl");
+  if (mapType) {
+    mapType.classList.toggle("hidden", isSubway);
+  }
+};
