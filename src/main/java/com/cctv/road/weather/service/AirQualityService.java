@@ -20,11 +20,11 @@ import java.util.*;
 @RequiredArgsConstructor
 public class AirQualityService {
 
-    private final RestTemplate restTemplate = new RestTemplate();
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final RestTemplate restTemplate;
+    private final ObjectMapper objectMapper;
 
-    @Value("${airkorea.api.key}")
-    private String airKoreaApiKey;
+    @Value("${kma.api.key}")
+    private String kmaApiKey;
 
     private List<Map<String, String>> stationList = new ArrayList<>();
 
@@ -33,19 +33,20 @@ public class AirQualityService {
         try {
             URI uri = UriComponentsBuilder
                     .fromHttpUrl("https://apis.data.go.kr/B552584/MsrstnInfoInqireSvc/getMsrstnList")
-                    .queryParam("serviceKey", URLEncoder.encode(airKoreaApiKey, StandardCharsets.UTF_8))
+                    .queryParam("serviceKey", URLEncoder.encode(kmaApiKey, StandardCharsets.UTF_8))
                     .queryParam("returnType", "json")
                     .queryParam("numOfRows", 1000)
                     .queryParam("pageNo", 1)
-                    .build(true).toUri();
+                    .build(true)
+                    .toUri();
 
             String response = restTemplate.getForObject(uri, String.class);
-            Map<String, Object> root = mapper.readValue(response, Map.class);
+            Map<String, Object> root = objectMapper.readValue(response, Map.class);
             List<Map<String, String>> items = (List<Map<String, String>>) ((Map) ((Map) root.get("response"))
                     .get("body")).get("items");
 
             stationList = items;
-            log.info("✅ 대기질 측정소 {}개 로드 완료", items.size());
+            // log.info("✅ 대기질 측정소 {}개 로드 완료", items.size());
         } catch (Exception e) {
             log.error("❌ 측정소 목록 로드 실패", e);
         }
@@ -78,7 +79,7 @@ public class AirQualityService {
         try {
             URI uri = UriComponentsBuilder
                     .fromHttpUrl("https://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getMsrstnAcctoRltmMesureDnsty")
-                    .queryParam("serviceKey", URLEncoder.encode(airKoreaApiKey, StandardCharsets.UTF_8))
+                    .queryParam("serviceKey", URLEncoder.encode(kmaApiKey, StandardCharsets.UTF_8))
                     .queryParam("returnType", "json")
                     .queryParam("stationName", URLEncoder.encode(stationName, StandardCharsets.UTF_8)) // 인코딩 추가
                     .queryParam("dataTerm", "DAILY")
@@ -87,7 +88,7 @@ public class AirQualityService {
                     .build(true).toUri();
 
             ResponseEntity<String> response = restTemplate.getForEntity(uri, String.class);
-            Map<String, Object> root = mapper.readValue(response.getBody(), Map.class);
+            Map<String, Object> root = objectMapper.readValue(response.getBody(), Map.class);
 
             List<Map<String, String>> items = (List<Map<String, String>>)
                     ((Map) ((Map) root.get("response")).get("body")).get("items");

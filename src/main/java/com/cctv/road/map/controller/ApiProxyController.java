@@ -20,7 +20,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -41,18 +40,14 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
-import com.cctv.road.map.dto.BikeListResponse;
 import com.cctv.road.map.dto.BusArrivalDto;
 import com.cctv.road.map.dto.BusRouteDto;
 import com.cctv.road.map.dto.UnifiedBusStopDto;
 import com.cctv.road.map.repository.BusStopRepository;
 import com.cctv.road.weather.util.GeoUtil;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.github.cdimascio.dotenv.Dotenv;
 import jakarta.annotation.PostConstruct;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RestController
@@ -779,57 +774,14 @@ public class ApiProxyController {
 
   @GetMapping("/bike-list")
   public Mono<String> getBikeList() {
-    String apiKey = dotenv.get("SEOUL_BIKE_API_KEY");
-    int pageSize = 1000;
-    int maxPage = 5; // 최대 5000건까지
-
-    List<Mono<BikeListResponse>> pageMonos = new ArrayList<>();
-
-    for (int i = 0; i < maxPage; i++) {
-      int start = i * pageSize + 1;
-      int end = start + pageSize - 1;
-
-      Mono<BikeListResponse> pageMono = seoulOpenApiClient.get()
-          .uri(uriBuilder -> uriBuilder
-              .path("/{apiKey}/json/bikeList/{start}/{end}/")
-              .build(apiKey, start, end))
-          .accept(MediaType.APPLICATION_JSON)
-          .retrieve()
-          .bodyToMono(new ParameterizedTypeReference<BikeListResponse>() {
-          });
-
-      pageMonos.add(pageMono);
-    }
-
-    return Flux.merge(pageMonos)
-        .collectList()
-        .map(responses -> {
-          List<Map<String, Object>> allRows = new ArrayList<>();
-
-          for (BikeListResponse response : responses) {
-            if (response == null || response.getRentBikeStatus() == null)
-              continue;
-
-            List<?> rows = response.getRentBikeStatus().getRow();
-            if (rows != null) {
-              for (Object row : rows) {
-                allRows.add(new ObjectMapper().convertValue(row, Map.class));
-              }
-            }
-          }
-
-          Map<String, Object> result = Map.of(
-              "rentBikeStatus", Map.of(
-                  "row", allRows,
-                  "list_total_count", allRows.size(),
-                  "RESULT", Map.of("CODE", "INFO-000", "MESSAGE", "전체 데이터 수집 성공")));
-
-          try {
-            return new ObjectMapper().writeValueAsString(result);
-          } catch (JsonProcessingException e) {
-            throw new RuntimeException("JSON 변환 실패", e);
-          }
-        });
+    return seoulOpenApiClient.get()
+        .uri(uriBuilder -> uriBuilder
+            .path("/{apiKey}/json/bikeList/1/1000/")
+            .build(dotenv.get("SEOUL_BIKE_API_KEY")))
+        .accept(MediaType.APPLICATION_JSON)
+        .retrieve()
+        .bodyToMono(String.class)
+        .onErrorMap(e -> new RuntimeException("서울 따릉이 정보 API 호출 실패", e));
   }
 
   @GetMapping("/parking/seoul-city")
@@ -924,51 +876,51 @@ public class ApiProxyController {
   }
 
   // 도로 중심선 버스 경로 찍기 봉 인 !!
-  /*
-   * @GetMapping("/naver-driving-path")
-   * public ResponseEntity<?> getSmoothedPath(
-   * 
-   * @RequestParam double startLat,
-   * 
-   * @RequestParam double startLng,
-   * 
-   * @RequestParam double goalLat,
-   * 
-   * @RequestParam double goalLng) {
-   * 
-   * try {
-   * String response = naverClient.get()
-   * .uri(uriBuilder -> uriBuilder
-   * .path("/map-direction-15/v1/driving")
-   * .queryParam("start", startLng + "," + startLat)
-   * .queryParam("goal", goalLng + "," + goalLat)
-   * .queryParam("option", "trafast")
-   * .build())
-   * .retrieve()
-   * .bodyToMono(String.class)
-   * .block(); // Mono -> String 동기 처리
-   * 
-   * ObjectMapper mapper = new ObjectMapper();
-   * JsonNode root = mapper.readTree(response);
-   * JsonNode pathArray = root.at("/route/trafast/0/path");
-   * 
-   * List<Map<String, Double>> coordinates = new ArrayList<>();
-   * for (JsonNode coord : pathArray) {
-   * double lng = coord.get(0).asDouble();
-   * double lat = coord.get(1).asDouble();
-   * Map<String, Double> point = new HashMap<>();
-   * point.put("lat", lat);
-   * point.put("lng", lng);
-   * coordinates.add(point);
-   * }
-   * 
-   * return ResponseEntity.ok(coordinates);
-   * 
-   * } catch (Exception e) {
-   * e.printStackTrace();
-   * return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-   * .body(Map.of("error", "경로 처리 실패: " + e.getMessage()));
-   * }
-   * }
-   */
+/* 
+  @GetMapping("/naver-driving-path")
+  public ResponseEntity<?> getSmoothedPath(
+
+      @RequestParam double startLat,
+
+      @RequestParam double startLng,
+
+      @RequestParam double goalLat,
+
+      @RequestParam double goalLng) {
+
+    try {
+      String response = naverClient.get()
+          .uri(uriBuilder -> uriBuilder
+              .path("/map-direction-15/v1/driving")
+              .queryParam("start", startLng + "," + startLat)
+              .queryParam("goal", goalLng + "," + goalLat)
+              .queryParam("option", "trafast")
+              .build())
+          .retrieve()
+          .bodyToMono(String.class)
+          .block(); // Mono -> String 동기 처리
+
+      ObjectMapper mapper = new ObjectMapper();
+      JsonNode root = mapper.readTree(response);
+      JsonNode pathArray = root.at("/route/trafast/0/path");
+
+      List<Map<String, Double>> coordinates = new ArrayList<>();
+      for (JsonNode coord : pathArray) {
+        double lng = coord.get(0).asDouble();
+        double lat = coord.get(1).asDouble();
+        Map<String, Double> point = new HashMap<>();
+        point.put("lat", lat);
+        point.put("lng", lng);
+        coordinates.add(point);
+      }
+
+      return ResponseEntity.ok(coordinates);
+
+    } catch (Exception e) {
+      e.printStackTrace();
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .body(Map.of("error", "경로 처리 실패: " + e.getMessage()));
+    }
+  }
+ */
 }
