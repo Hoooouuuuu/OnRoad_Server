@@ -27,8 +27,8 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class KmaWeatherService {
 
-  private final ObjectMapper objectMapper = new ObjectMapper();
-  private final RestTemplate restTemplate = new RestTemplate();
+  private final RestTemplate restTemplate;
+  private final ObjectMapper objectMapper;  
 
   @Value("${kma.api.key}")
   private String kmaApiKey;

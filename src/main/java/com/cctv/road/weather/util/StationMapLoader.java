@@ -12,19 +12,20 @@ import java.util.Map;
 @Service
 public class StationMapLoader {
 
-    private final Map<String, String> regionToStationMap;
+  private final Map<String, String> regionToStationMap;
 
-    public StationMapLoader() throws IOException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        InputStream is = new ClassPathResource("json/air.json").getInputStream();
-        this.regionToStationMap = objectMapper.readValue(is, new TypeReference<>() {});
-    }
+  public StationMapLoader() throws IOException {
+    ObjectMapper objectMapper = new ObjectMapper();
+    InputStream is = new ClassPathResource("json/air.json").getInputStream();
+    this.regionToStationMap = objectMapper.readValue(is, new TypeReference<>() {
+    });
+  }
 
-    public String getStation(String regionName) {
-        return regionToStationMap.get(regionName);
-    }
+  public String getStation(String regionName) {
+    return regionToStationMap.get(regionName);
+  }
 
-    public Map<String, String> getAll() {
-        return regionToStationMap;
-    }
+  public Map<String, String> getAll() {
+    return regionToStationMap;
+  }
 }
