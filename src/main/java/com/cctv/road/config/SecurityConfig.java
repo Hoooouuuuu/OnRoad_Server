@@ -88,8 +88,8 @@ public class SecurityConfig {
                 "/member/find/**", "/find-id", "/find-password",
                 "/board/list/**", "/board/view/**", "/naver-driving-path/**",
                 "/chart-view", "/chart/**", "/pages/map/**", "/news-view/**",
-                "/svg/**"
-                )
+                "/api/road-cctv-mapping/**", "/api/roads/**",  "api/cctvs/**",
+                "/api/road-coordinates/**")
             .permitAll()
             .anyRequest().authenticated())
         .formLogin(form -> form

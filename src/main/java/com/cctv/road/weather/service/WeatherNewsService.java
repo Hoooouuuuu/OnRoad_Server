@@ -11,10 +11,10 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class WeatherNewsService {
-  private final JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
 
-  public List<Map<String, Object>> getRecentNews(int limit) {
-    String sql = "SELECT title, url, published_at FROM weather_articles ORDER BY published_at DESC LIMIT ?";
-    return jdbcTemplate.queryForList(sql, limit);
-  }
+    public List<Map<String, Object>> getRecentNews(int limit) {
+        String sql = "SELECT title, url, published_at FROM weather_articles ORDER BY published_at DESC LIMIT ?";
+        return jdbcTemplate.queryForList(sql, limit);
+    }
 }
