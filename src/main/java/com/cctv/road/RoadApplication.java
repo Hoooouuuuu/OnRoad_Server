@@ -5,7 +5,9 @@ import java.util.Map;
 
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.web.client.RestTemplate; 
 
 import io.github.cdimascio.dotenv.Dotenv;
 
@@ -26,5 +28,10 @@ public class RoadApplication {
 		new SpringApplicationBuilder(RoadApplication.class)
 				.properties(props)
 				.run(args);
+	}
+
+	@Bean
+	public RestTemplate restTemplate() {
+		return new RestTemplate();
 	}
 }
